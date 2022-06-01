@@ -1,0 +1,15 @@
+  id: concept-curate
+  scopetag: ctwg
+  termtype: concept
+  termid: curate
+  grouptags:
+  date: 20211123
+  versiontag: 9
+  commit:
+  formphrases: [ curate, curates, curated, curation ]
+  status: proposed
+  term: curate
+  synonyms: curation
+  glossaryText: To evolve [concept](@) and [term](@) data in the direction of greater quality and richer content within a specific [scope](@).
+  hoverText: Curate: to evolve concept and term data in the direction of greater quality and richer content within a specific scope.
+  url: https://github.com/trustoverip/ctwg/wiki/curate
