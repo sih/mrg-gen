@@ -1,0 +1,33 @@
+scope:
+  scopetag: "sample-1"
+  scopedir: "./source"
+  curatedir: "./curated"
+  glossarydir: "./glossary"
+  mrgfile: "mrg-sample-1.txt"
+  hrgfile: "hrg-sample-1.txt"
+  license: "Apache 2.0"
+  statuses:
+    - firstStatus
+    - secondStatus
+    - finalStatus
+  issues: "https://https://github.com/sih/mrg-gen/issues"
+  website: "https://https://github.com/sih/mrg-gen"
+  slack: "mrg-gen"
+  curators: "mailto:nemo@datasoc.ltd"
+scopes:
+  scopetags:
+    - "sample-1"
+  scopedirs:
+    - "./sources"
+versions:
+  vsntag: "1.0.0"
+  altvsntags:
+    - v1
+    - v1.0.0
+  license: "Apache 2.0"
+  termselcrit:
+    - "current"
+    - "latest"
+  status: "prototype"
+  from: "2022-06-05"
+  to: "2022-12-05"
