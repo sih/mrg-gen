@@ -19,5 +19,5 @@ public final class Scope {
   private String issues;
   private String website;
   private String slack;
-  private String curators;
+  private List<Curator> curators;
 }

@@ -1,5 +1,6 @@
 package ltd.datasoc.labs.ctwg.mrg.model;
 
+import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,8 +11,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @EqualsAndHashCode
-public class SAFModel {
+public final class SAFModel {
   private Scope scope;
-  private Scopes scopes;
-  private Versions versions;
+  private List<ScopeRef> scopes;
+  private List<Version> versions;
 }

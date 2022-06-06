@@ -7,7 +7,7 @@ import lombok.Data;
  * @author sih
  */
 @Data
-public final class Scopes {
+public class ScopeRef {
   private List<String> scopetags;
-  private List<String> scopedirs;
+  private String scopedir;
 }
