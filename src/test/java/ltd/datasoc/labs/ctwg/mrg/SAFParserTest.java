@@ -4,13 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
 import java.util.List;
 import ltd.datasoc.labs.ctwg.mrg.model.Curator;
 import ltd.datasoc.labs.ctwg.mrg.model.Email;
 import ltd.datasoc.labs.ctwg.mrg.model.SAFModel;
 import ltd.datasoc.labs.ctwg.mrg.model.Scope;
 import ltd.datasoc.labs.ctwg.mrg.model.ScopeRef;
+import ltd.datasoc.labs.ctwg.mrg.model.Version;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -36,8 +36,7 @@ class SAFParserTest {
   }
 
   private void assertSpecificChecksForSample1(SAFModel actualModel) {
-    LocalDate expectedDate = LocalDate.of(2022, 03, 12);
-
+    // check top-level scope
     Scope actualTerminology = actualModel.getScope();
     Curator[] expectedCurators = {new Curator("RieksJ", new Email("rieks.joosten", "tno.nl"))};
     assertTerminology(
@@ -49,10 +48,10 @@ class SAFParserTest {
         "https://essif-lab.github.io/framework/docs/tev2/tev2-overview",
         "https://trustoverip.slack.com/archives/C01BBNGRPUH",
         expectedCurators);
-
+    // check each of the scope references in the scopes element
     List<ScopeRef> scopeRefs = actualModel.getScopes();
     int expectedNumberOfScopeRefs = 2;
-    assertThat(scopeRefs.size()).isEqualTo(expectedNumberOfScopeRefs);
+    assertThat(scopeRefs).hasSize(expectedNumberOfScopeRefs);
     ScopeRef expectedFirstScopeRef =
         new ScopeRef(
             List.of("essiflab", "essif-lab"),
@@ -64,6 +63,39 @@ class SAFParserTest {
       assertScopeRef(actualScopes[0], expectedFirstScopeRef);
       assertScopeRef(actualScopes[1], expectedSecondScopeRef);
     }
+    // check each of the versions
+    List<Version> versions = actualModel.getVersions();
+    int expectedNumberOfVersions = 3;
+    assertThat(versions).hasSize(expectedNumberOfVersions);
+    Version expectedFirstVersion =
+        new Version("mrgtest", null, List.of("[tev2]@tev2"), null, null, null);
+    Version expectedSecondVersion =
+        new Version(
+            "0x921456",
+            List.of("latest", "v0.9.4"),
+            List.of(
+                "[management]@essif-lab",
+                "[party](@essif-lab:0.9.4)",
+                "[community](@essif-lab:0.9.4)",
+                "[tev2]@tev2"),
+            "proposed",
+            "20220312",
+            null);
+    Version expectedThirdVersion =
+        new Version(
+            "0x654129",
+            List.of("v0.9.0"),
+            List.of(
+                "[management]@essif-lab",
+                "[party](@essif-lab:0.9.4)",
+                "[community](@essif-lab:0.9.4)"),
+            null,
+            null,
+            null);
+
+    Version[] actualVersions = versions.toArray(new Version[0]);
+    assertVersion(actualVersions[0], expectedFirstVersion);
+    assertVersion(actualVersions[1], expectedSecondVersion);
   }
 
   void assertTerminology(
@@ -88,5 +120,15 @@ class SAFParserTest {
     assertThat(actualScopeRef.getScopetags())
         .containsExactly(expectedScoperef.getScopetags().toArray(new String[0]));
     assertThat(actualScopeRef.getScopedir()).isEqualTo(expectedScoperef.getScopedir());
+  }
+
+  private void assertVersion(Version actualVersion, Version expectedVersion) {
+    assertThat(actualVersion.getVsntag()).isEqualTo(expectedVersion.getVsntag());
+    assertThat(actualVersion.getAltvsntags()).isEqualTo(expectedVersion.getAltvsntags());
+    assertThat(actualVersion.getTerms())
+        .containsExactly(expectedVersion.getTerms().toArray(new String[0]));
+    assertThat(actualVersion.getStatus()).isEqualTo(expectedVersion.getStatus());
+    assertThat(actualVersion.getFrom()).isEqualTo(expectedVersion.getFrom());
+    assertThat(actualVersion.getTo()).isEqualTo(expectedVersion.getTo());
   }
 }
