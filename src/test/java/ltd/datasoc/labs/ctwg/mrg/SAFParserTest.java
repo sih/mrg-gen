@@ -5,10 +5,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.util.List;
 import ltd.datasoc.labs.ctwg.mrg.model.Curator;
 import ltd.datasoc.labs.ctwg.mrg.model.Email;
 import ltd.datasoc.labs.ctwg.mrg.model.SAFModel;
 import ltd.datasoc.labs.ctwg.mrg.model.Scope;
+import ltd.datasoc.labs.ctwg.mrg.model.ScopeRef;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -47,6 +49,21 @@ class SAFParserTest {
         "https://essif-lab.github.io/framework/docs/tev2/tev2-overview",
         "https://trustoverip.slack.com/archives/C01BBNGRPUH",
         expectedCurators);
+
+    List<ScopeRef> scopeRefs = actualModel.getScopes();
+    int expectedNumberOfScopeRefs = 2;
+    assertThat(scopeRefs.size()).isEqualTo(expectedNumberOfScopeRefs);
+    ScopeRef expectedFirstScopeRef =
+        new ScopeRef(
+            List.of("essiflab", "essif-lab"),
+            "https://github.com/essif-lab/framework/tree/master/docs");
+    ScopeRef expectedSecondScopeRef =
+        new ScopeRef(List.of("ctwg", "toip-ctwg"), "https://github.com/trustoverip/ctwg");
+    ScopeRef[] actualScopes = scopeRefs.toArray(new ScopeRef[0]);
+    for (int i = 0; i < actualScopes.length; i++) {
+      assertScopeRef(actualScopes[0], expectedFirstScopeRef);
+      assertScopeRef(actualScopes[1], expectedSecondScopeRef);
+    }
   }
 
   void assertTerminology(
@@ -65,5 +82,11 @@ class SAFParserTest {
     assertThat(actualTerminology.getWebsite()).isEqualTo(expectedWebsite);
     assertThat(actualTerminology.getSlack()).isEqualTo(expectedSlack);
     assertThat(actualTerminology.getCurators()).containsExactly(expectedCurators);
+  }
+
+  private void assertScopeRef(ScopeRef actualScopeRef, ScopeRef expectedScoperef) {
+    assertThat(actualScopeRef.getScopetags())
+        .containsExactly(expectedScoperef.getScopetags().toArray(new String[0]));
+    assertThat(actualScopeRef.getScopedir()).isEqualTo(expectedScoperef.getScopedir());
   }
 }
