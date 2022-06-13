@@ -26,6 +26,9 @@ public class GithubReader {
     try {
       GHRepository repo = gh.getRepository(repository);
       GHContent content = repo.getFileContent(contentName);
+      if (null == content) {
+        return null;
+      }
       InputStream is = content.read();
       return new String(is.readAllBytes(), StandardCharsets.US_ASCII);
     } catch (IOException e) {

@@ -1,4 +1,4 @@
-package ltd.datasoc.labs.ctwg.mrg;
+package ltd.datasoc.labs.ctwg.mrg.generators;
 
 import java.util.ArrayList;
 import java.util.List;

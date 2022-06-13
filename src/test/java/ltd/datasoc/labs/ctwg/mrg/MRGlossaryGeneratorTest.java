@@ -2,6 +2,7 @@ package ltd.datasoc.labs.ctwg.mrg;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import ltd.datasoc.labs.ctwg.mrg.generators.MRGlossaryGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

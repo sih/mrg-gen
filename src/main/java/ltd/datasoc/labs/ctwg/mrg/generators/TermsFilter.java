@@ -1,4 +1,4 @@
-package ltd.datasoc.labs.ctwg.mrg.processors;
+package ltd.datasoc.labs.ctwg.mrg.generators;
 
 import java.util.function.Predicate;
 import ltd.datasoc.labs.ctwg.mrg.model.Term;
