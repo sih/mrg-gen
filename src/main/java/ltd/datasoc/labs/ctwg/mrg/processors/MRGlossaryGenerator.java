@@ -19,12 +19,10 @@ public class MRGlossaryGenerator {
 
   public MRGlossaryGenerator(ModelWrangler wrangler) {
     this.wrangler = wrangler;
-    this.generatorContext = wrangler.getGeneratorContext();
   }
 
   public MRGlossaryGenerator() {
     generatorContext = new GeneratorContext();
-    this.wrangler = new ModelWrangler(generatorContext);
   }
 
   public MRGModel generate(final String scopedir, final String safFilename, final String version)

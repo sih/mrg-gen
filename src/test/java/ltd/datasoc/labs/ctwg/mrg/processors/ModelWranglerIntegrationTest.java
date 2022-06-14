@@ -25,7 +25,7 @@ class ModelWranglerIntegrationTest {
 
   @BeforeEach
   void set_up() {
-    wrangler = new ModelWrangler(new GeneratorContext());
+    wrangler = new ModelWrangler();
   }
 
   @Test
@@ -53,12 +53,5 @@ class ModelWranglerIntegrationTest {
     assertThat(safString).isNotNull();
   }
 
-  @Test
-  void given_saf_that_exists_when_get_saf_as_string_then_populate_context() throws Exception {
-    String safString = wrangler.getSafAsString(TEV2_SCOPEDIR, SAF_FILENAME);
-    assertThat(wrangler.getGeneratorContext()).isNotNull();
-    assertThat(wrangler.getGeneratorContext().getOwnerRepo()).isEqualTo(expectedOwnerRepo);
-    assertThat(wrangler.getGeneratorContext().getRootDirPath()).isEqualTo(expectedRootDirPath);
-    assertThat(wrangler.getGeneratorContext().getSafFilepath()).isEqualTo(expectedSafFilepath);
-  }
+
 }
