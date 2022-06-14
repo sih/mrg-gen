@@ -20,8 +20,8 @@ public class ModelWrangler {
     reader = new GithubReader();
   }
 
-  private static final String DEFAULT_MRG_FILENAME = "mrg";
-  private static final String DEFAULT_SAF_FILENAME = "saf.yaml";
+  public static final String DEFAULT_MRG_FILENAME = "mrg.json";
+  public static final String DEFAULT_SAF_FILENAME = "saf.yaml";
 
   private static final String HTTPS = "https://";
   private static final String TREE = "tree";
@@ -30,15 +30,20 @@ public class ModelWrangler {
 
   // TODO getAllTerms and create a filter for the terms
 
-  public String getSafAsString(String scopedir) {
+  public String getSafAsString(String scopedir) throws MRGGenerationException {
     return getSafAsString(scopedir, DEFAULT_SAF_FILENAME);
   }
 
-  public String getSafAsString(String scopedir, String safFilename) {
+  public String getSafAsString(String scopedir, String safFilename) throws MRGGenerationException {
     String ownerRepo = getOwnerRepo(scopedir);
     String filePath = getFilepath(scopedir, safFilename);
-    String content = reader.getContent(ownerRepo, filePath);
-    return content;
+    try {
+      return reader.getContent(ownerRepo, filePath);
+
+    } catch (Throwable t) {
+      throw new MRGGenerationException(
+          String.format(MRGGenerationException.NOT_FOUND, String.join("/", scopedir, safFilename)));
+    }
   }
 
   public Version getVersion(SAFModel saf, String versionTag) {

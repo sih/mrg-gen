@@ -1,6 +1,8 @@
 package ltd.datasoc.labs.ctwg.mrg.generators;
 
+import static ltd.datasoc.labs.ctwg.mrg.generators.ModelWrangler.DEFAULT_SAF_FILENAME;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,6 +14,7 @@ class ModelWranglerIntegrationTest {
 
   private static final String TEV2_SCOPEDIR =
       "https://github.com/essif-lab/framework/tree/master/docs/tev2";
+  private static final String PRIVATE_SCOPEDIR = "https://github.com/sih/scratch";
   private static final String SAF_FILENAME = "saf.yaml";
 
   private ModelWrangler wrangler;
@@ -19,6 +22,25 @@ class ModelWranglerIntegrationTest {
   @BeforeEach
   void set_up() {
     wrangler = new ModelWrangler();
+  }
+
+  @Test
+  void given_private_scopedir_when_get_saf_as_string_then_return_saf_exception() throws Exception {
+    assertThatExceptionOfType(MRGGenerationException.class)
+        .isThrownBy(() -> wrangler.getSafAsString(PRIVATE_SCOPEDIR, SAF_FILENAME))
+        .withMessage(
+            String.format(
+                MRGGenerationException.NOT_FOUND,
+                String.join("", PRIVATE_SCOPEDIR, "/", DEFAULT_SAF_FILENAME)));
+  }
+
+  @Test
+  void given_non_existent_saf_when_get_saf_as_string_then_return_saf_exception() throws Exception {
+    assertThatExceptionOfType(MRGGenerationException.class)
+        .isThrownBy(() -> wrangler.getSafAsString(TEV2_SCOPEDIR, "foo"))
+        .withMessage(
+            String.format(
+                MRGGenerationException.NOT_FOUND, String.join("", TEV2_SCOPEDIR, "/", "foo")));
   }
 
   @Test
