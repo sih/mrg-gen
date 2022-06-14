@@ -18,6 +18,8 @@ public class MRGGenerationException extends Exception {
 
   static final String NO_GLOSSARY_DIR =
       "The glossarydir attribute in the SAF scope is empty so no terms can be imported.";
+
+  static final String NO_SUCH_VERSION = "No version with version tag (vsntag) of %s found in SAF";
   /**
    * Constructs a new exception with {@code null} as its detail message. The cause is not
    * initialized, and may subsequently be initialized by a call to {@link #initCause}.

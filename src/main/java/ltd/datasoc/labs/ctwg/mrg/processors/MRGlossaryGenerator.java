@@ -1,12 +1,16 @@
 package ltd.datasoc.labs.ctwg.mrg.processors;
 
 import static ltd.datasoc.labs.ctwg.mrg.processors.MRGGenerationException.NO_GLOSSARY_DIR;
+import static ltd.datasoc.labs.ctwg.mrg.processors.MRGGenerationException.NO_SUCH_VERSION;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.Setter;
 import ltd.datasoc.labs.ctwg.mrg.model.MRGModel;
 import ltd.datasoc.labs.ctwg.mrg.model.SAFModel;
+import ltd.datasoc.labs.ctwg.mrg.model.Version;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -38,7 +42,23 @@ public class MRGlossaryGenerator {
     if (StringUtils.isEmpty(glossaryDir)) {
       throw new MRGGenerationException(NO_GLOSSARY_DIR);
     }
+    Version localVersion = getVersion(saf, versionTag);
+
+    // TODO handle version, e.g. "[party](@essif-lab:0.9.4)"
 
     return null;
+  }
+
+  private Version getVersion(SAFModel saf, String versionTag) throws MRGGenerationException {
+    List<Version> versions = saf.getVersions();
+    Optional<Version> version = Optional.empty();
+    for (Version v : versions) {
+      if (v.getVsntag().equals(versionTag)) {
+        version = Optional.of(v);
+        break;
+      }
+    }
+    return version.orElseThrow(
+        () -> new MRGGenerationException(String.format(NO_SUCH_VERSION, versionTag)));
   }
 }

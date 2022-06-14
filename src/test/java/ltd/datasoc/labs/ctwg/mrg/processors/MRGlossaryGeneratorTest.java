@@ -1,5 +1,6 @@
 package ltd.datasoc.labs.ctwg.mrg.processors;
 
+import static ltd.datasoc.labs.ctwg.mrg.processors.MRGGenerationException.NO_SUCH_VERSION;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.when;
 
@@ -28,8 +29,10 @@ class MRGlossaryGeneratorTest {
   private String safFilename;
   private String version;
   private SAFModel noGlossarySaf;
+  private SAFModel validSaf;
   private static final Path NO_GLOSSARY_SAF_PATH =
       Paths.get("./src/test/resources/no-glossary-saf.yaml");
+  private static final Path VALID_SAF_PATH = Paths.get("./src/test/resources/saf-sample-1.yaml");
 
   @BeforeEach
   void set_up() throws Exception {
@@ -38,6 +41,7 @@ class MRGlossaryGeneratorTest {
     safFilename = "saf.yaml";
     version = "version";
     generator = new MRGlossaryGenerator(mockWrangler);
+    validSaf = parser.parse(new String(Files.readAllBytes(VALID_SAF_PATH)));
     noGlossarySaf = parser.parse(new String(Files.readAllBytes(NO_GLOSSARY_SAF_PATH)));
   }
 
@@ -48,6 +52,17 @@ class MRGlossaryGeneratorTest {
     assertThatExceptionOfType(MRGGenerationException.class)
         .isThrownBy(() -> generator.generate(scopedir, safFilename, version))
         .withMessage(MRGGenerationException.NO_GLOSSARY_DIR);
+  }
+
+  @Test
+  @DisplayName("Should throw an exception when no glossary dir")
+  void given_saf_with_no_such_version_tag_when_generate_then_throw_MRGException() throws Exception {
+    when(mockWrangler.getSaf(scopedir, safFilename)).thenReturn(validSaf);
+    String badVersion = "moo";
+    String expectedNoVersionMessage = String.format(NO_SUCH_VERSION, badVersion);
+    assertThatExceptionOfType(MRGGenerationException.class)
+        .isThrownBy(() -> generator.generate(scopedir, safFilename, badVersion))
+        .withMessage(expectedNoVersionMessage);
   }
 
   /*
