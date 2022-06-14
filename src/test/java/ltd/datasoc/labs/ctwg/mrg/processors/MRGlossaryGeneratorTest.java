@@ -1,9 +1,18 @@
 package ltd.datasoc.labs.ctwg.mrg.processors;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.Mockito.when;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import ltd.datasoc.labs.ctwg.mrg.model.SAFModel;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
  * Many of the requirements are taken from
@@ -11,12 +20,34 @@ import org.junit.jupiter.api.Test;
  *
  * @author sih
  */
+@ExtendWith(MockitoExtension.class)
 class MRGlossaryGeneratorTest {
+  @Mock private ModelWrangler mockWrangler;
+  private MRGlossaryGenerator generator;
+  private String scopedir;
+  private String safFilename;
+  private String version;
+  private SAFModel noGlossarySaf;
+  private static final Path NO_GLOSSARY_SAF_PATH =
+      Paths.get("./src/test/resources/no-glossary-saf.yaml");
+
+  @BeforeEach
+  void set_up() throws Exception {
+    SAFParser parser = new SAFParser();
+    scopedir = "scopedir";
+    safFilename = "saf.yaml";
+    version = "version";
+    generator = new MRGlossaryGenerator(mockWrangler);
+    noGlossarySaf = parser.parse(new String(Files.readAllBytes(NO_GLOSSARY_SAF_PATH)));
+  }
 
   @Test
-  void simpleTest() {
-    MRGlossaryGenerator mrg = new MRGlossaryGenerator();
-    assertThat(mrg).isNotNull();
+  @DisplayName("Should throw an exception when no glossary dir")
+  void given_saf_with_no_glossary_dir_when_generate_then_throw_MRGException() throws Exception {
+    when(mockWrangler.getSaf(scopedir, safFilename)).thenReturn(noGlossarySaf);
+    assertThatExceptionOfType(MRGGenerationException.class)
+        .isThrownBy(() -> generator.generate(scopedir, safFilename, version))
+        .withMessage(MRGGenerationException.NO_GLOSSARY_DIR);
   }
 
   /*

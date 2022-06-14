@@ -11,12 +11,13 @@ import lombok.Setter;
 @Setter
 public class MRGGenerationException extends Exception {
 
-  public static final String NOT_FOUND =
+  static final String NOT_FOUND =
       "%s: There is no such resource or anonymous access to this repository is not allowed.";
 
-  public static final String UNABLE_TO_PARSE_SAF =
-      "Unable to parse SAF. Check that it is valid YAML";
+  static final String UNABLE_TO_PARSE_SAF = "Unable to parse SAF. Check that it is valid YAML";
 
+  static final String NO_GLOSSARY_DIR =
+      "The glossarydir attribute in the SAF scope is empty so no terms can be imported.";
   /**
    * Constructs a new exception with {@code null} as its detail message. The cause is not
    * initialized, and may subsequently be initialized by a call to {@link #initCause}.

@@ -1,6 +1,6 @@
 package ltd.datasoc.labs.ctwg.mrg.processors;
 
-import static ltd.datasoc.labs.ctwg.mrg.processors.ModelWrangler.DEFAULT_SAF_FILENAME;
+import static ltd.datasoc.labs.ctwg.mrg.processors.MRGlossaryGenerator.DEFAULT_SAF_FILENAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -16,12 +16,14 @@ class ModelWranglerIntegrationTest {
       "https://github.com/essif-lab/framework/tree/master/docs/tev2";
   private static final String PRIVATE_SCOPEDIR = "https://github.com/sih/scratch";
   private static final String SAF_FILENAME = "saf.yaml";
+  private String expectedOwnerRepo = "essif-lab/framework";
+  private String expectedSafFilepath = "docs/tev2/saf.yaml";
 
   private ModelWrangler wrangler;
 
   @BeforeEach
   void set_up() {
-    wrangler = new ModelWrangler();
+    wrangler = new ModelWrangler(new GeneratorContext());
   }
 
   @Test
@@ -47,5 +49,13 @@ class ModelWranglerIntegrationTest {
   void given_saf_that_exists_when_get_saf_as_string_then_return_valid_content() throws Exception {
     String safString = wrangler.getSafAsString(TEV2_SCOPEDIR, SAF_FILENAME);
     assertThat(safString).isNotNull();
+  }
+
+  @Test
+  void given_saf_that_exists_when_get_saf_as_string_then_populate_context() throws Exception {
+    String safString = wrangler.getSafAsString(TEV2_SCOPEDIR, SAF_FILENAME);
+    assertThat(wrangler.getGeneratorContext()).isNotNull();
+    assertThat(wrangler.getGeneratorContext().getOwnerRepo()).isEqualTo(expectedOwnerRepo);
+    assertThat(wrangler.getGeneratorContext().getSafFilepath()).isEqualTo(expectedSafFilepath);
   }
 }

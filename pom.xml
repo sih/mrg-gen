@@ -19,7 +19,8 @@
     <lombok.version>1.18.24</lombok.version>
     <github-api.version>1.306</github-api.version>
     <assertj.version>3.18.1</assertj.version>
-    <junit-jupiter.version>5.6.3</junit-jupiter.version>
+    <junit-jupiter.version>5.8.1</junit-jupiter.version>
+    <mockito.version>3.6.28</mockito.version>
     <surefire-plugin.version>2.22.1</surefire-plugin.version>
   </properties>
   <dependencies>
@@ -43,6 +44,11 @@
       <artifactId>jackson-datatype-jsr310</artifactId>
       <version>${jackson.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.kohsuke</groupId>
+      <artifactId>github-api</artifactId>
+      <version>${github-api.version}</version>
+    </dependency>
     <!-- Test dependencies -->
     <dependency>
       <groupId>org.assertj</groupId>
@@ -61,11 +67,17 @@
       <version>${junit-jupiter.version}</version>
       <scope>test</scope>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/org.kohsuke/github-api -->
     <dependency>
-      <groupId>org.kohsuke</groupId>
-      <artifactId>github-api</artifactId>
-      <version>${github-api.version}</version>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>${mockito.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <version>${mockito.version}</version>
+      <scope>test</scope>
     </dependency>
 
   </dependencies>
