@@ -2,6 +2,9 @@ package ltd.datasoc.labs.ctwg.mrg.processors;
 
 import static ltd.datasoc.labs.ctwg.mrg.processors.MRGGenerationException.NO_GLOSSARY_DIR;
 
+import java.util.Map;
+import lombok.AccessLevel;
+import lombok.Setter;
 import ltd.datasoc.labs.ctwg.mrg.model.MRGModel;
 import ltd.datasoc.labs.ctwg.mrg.model.SAFModel;
 import org.apache.commons.lang3.StringUtils;
@@ -15,24 +18,26 @@ public class MRGlossaryGenerator {
   public static final String DEFAULT_SAF_FILENAME = "saf.yaml";
 
   private ModelWrangler wrangler;
-  private GeneratorContext generatorContext;
+
+  @Setter(AccessLevel.PRIVATE)
+  private Map<String, GeneratorContext> contextMap;
+
+  public MRGlossaryGenerator() {
+    this(new ModelWrangler());
+  }
 
   public MRGlossaryGenerator(ModelWrangler wrangler) {
     this.wrangler = wrangler;
   }
 
-  public MRGlossaryGenerator() {
-    generatorContext = new GeneratorContext();
-  }
-
-  public MRGModel generate(final String scopedir, final String safFilename, final String version)
+  public MRGModel generate(final String scopedir, final String safFilename, final String versionTag)
       throws MRGGenerationException {
     SAFModel saf = wrangler.getSaf(scopedir, safFilename);
+    this.setContextMap(wrangler.buildContextMap(saf, versionTag));
     String glossaryDir = saf.getScope().getGlossarydir();
     if (StringUtils.isEmpty(glossaryDir)) {
       throw new MRGGenerationException(NO_GLOSSARY_DIR);
     }
-    String mrgFile = saf.getScope().getMrgfile();
 
     return null;
   }

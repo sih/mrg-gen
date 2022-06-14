@@ -1,11 +1,16 @@
 package ltd.datasoc.labs.ctwg.mrg.processors;
 
 import static ltd.datasoc.labs.ctwg.mrg.processors.MRGlossaryGenerator.DEFAULT_MRG_FILENAME;
+import static ltd.datasoc.labs.ctwg.mrg.processors.MRGlossaryGenerator.DEFAULT_SAF_FILENAME;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import ltd.datasoc.labs.ctwg.mrg.ltd.datasoc.labs.ctwg.connectors.GithubReader;
 import ltd.datasoc.labs.ctwg.mrg.model.MRGModel;
 import ltd.datasoc.labs.ctwg.mrg.model.SAFModel;
+import ltd.datasoc.labs.ctwg.mrg.model.ScopeRef;
 
 /**
  * @author sih
@@ -22,6 +27,7 @@ class ModelWrangler {
 
   private static final String HTTPS = "https://";
   private static final String TREE = "tree";
+  private static final String MRG_FILE_EXTENSION = "yaml";
   private static final int OWNER_PART_INDEX = 1;
   private static final int REPO_PART_INDEX = 2;
 
@@ -37,14 +43,42 @@ class ModelWrangler {
 
   String getSafAsString(String scopedir, String safFilename) throws MRGGenerationException {
     String ownerRepo = getOwnerRepo(scopedir);
-    String filePath = getFilepath(scopedir, safFilename);
+    String saf = (null == safFilename) ? DEFAULT_SAF_FILENAME : safFilename;
+    String safFilepath = String.join("/", getRootPath(scopedir), saf);
     try {
-      return reader.getContent(ownerRepo, filePath);
+      return reader.getContent(ownerRepo, safFilepath);
 
     } catch (Throwable t) {
       throw new MRGGenerationException(
           String.format(MRGGenerationException.NOT_FOUND, String.join("/", scopedir, safFilename)));
     }
+  }
+
+  Map<String, GeneratorContext> buildContextMap(SAFModel saf, String versionTag) {
+    Map<String, GeneratorContext> contextMap = new HashMap<>();
+    // do local scope
+    String localScope = saf.getScope().getScopetag();
+    String localScopedir = saf.getScope().getScopedir();
+    GeneratorContext localContext = createSkeletonContext(localScopedir);
+    contextMap.put(localScope, localContext);
+    String mrgFilename = String.join(".", DEFAULT_MRG_FILENAME, versionTag, MRG_FILE_EXTENSION);
+    // create skeleton external scopes
+    List<ScopeRef> externalScopes = saf.getScopes();
+    for (ScopeRef externalScope : externalScopes) {
+      GeneratorContext generatorContext = createSkeletonContext(externalScope.getScopedir());
+      List<String> scopetags = externalScope.getScopetags();
+      for (String scopetag : scopetags) {
+        contextMap.put(scopetag, generatorContext);
+      }
+    }
+
+    return contextMap;
+  }
+
+  private GeneratorContext createSkeletonContext(String scopedir) {
+    String ownerRepo = getOwnerRepo(scopedir);
+    String rootPath = getRootPath(scopedir);
+    return new GeneratorContext(ownerRepo, rootPath);
   }
 
   MRGModel getMrg(String glossaryDir, String mrgFilename, String versionTag) {
@@ -62,8 +96,12 @@ class ModelWrangler {
     return ownerRepo;
   }
 
-  private String getFilepath(String scopedir, String safFilename) {
-    int treeIndex = scopedir.indexOf(TREE) + TREE.length() + 1;
+  private String getRootPath(String scopedir) {
+    int treeIndex = scopedir.indexOf(TREE);
+    if (treeIndex == -1) { // no tree found => root dir is /
+      return "/";
+    }
+    treeIndex = treeIndex + +TREE.length() + 1; // step past "tree" itself
     String branchDir = scopedir.substring(treeIndex);
     String[] branchDirParts = branchDir.split("/");
     String[] dirParts = Arrays.copyOfRange(branchDirParts, 1, branchDirParts.length);
@@ -71,6 +109,6 @@ class ModelWrangler {
     for (int i = 0; i < dirParts.length; i++) {
       path.append(dirParts[i]).append("/");
     }
-    return path.append(safFilename).toString();
+    return path.deleteCharAt(path.length() - 1).toString();
   }
 }

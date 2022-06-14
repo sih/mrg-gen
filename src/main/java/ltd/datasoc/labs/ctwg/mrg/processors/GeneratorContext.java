@@ -1,16 +1,19 @@
 package ltd.datasoc.labs.ctwg.mrg.processors;
 
 import lombok.Getter;
-import lombok.Setter;
 
 /**
  * @author sih
  */
 @Getter
-@Setter
 final class GeneratorContext {
   private String ownerRepo;
   private String rootDirPath;
   private String safFilepath;
-  private String mrgFilepath;
+
+  public GeneratorContext(String ownerRepo, String rootDirPath) {
+    this.ownerRepo = ownerRepo;
+    this.rootDirPath = rootDirPath;
+    this.safFilepath = String.join("/", rootDirPath, MRGlossaryGenerator.DEFAULT_SAF_FILENAME);
+  }
 }

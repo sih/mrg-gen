@@ -4,6 +4,8 @@ import static ltd.datasoc.labs.ctwg.mrg.processors.MRGlossaryGenerator.DEFAULT_S
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import java.util.Map;
+import ltd.datasoc.labs.ctwg.mrg.model.SAFModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,9 +18,10 @@ class ModelWranglerIntegrationTest {
       "https://github.com/essif-lab/framework/tree/master/docs/tev2";
   private static final String PRIVATE_SCOPEDIR = "https://github.com/sih/scratch";
   private static final String SAF_FILENAME = "saf.yaml";
+  private static final String MRGTEST_VERSION = "mrgtest";
   private String expectedOwnerRepo = "essif-lab/framework";
   private String expectedRootDirPath = "docs/tev2";
-  ;
+  private String expectedScopetag = "tev2";
   private String expectedSafFilepath = "docs/tev2/saf.yaml";
 
   private ModelWrangler wrangler;
@@ -53,5 +56,35 @@ class ModelWranglerIntegrationTest {
     assertThat(safString).isNotNull();
   }
 
-
+  @Test
+  void given_valid_saf_when_build_context_map_then_return_populated_map() throws Exception {
+    SAFModel saf = wrangler.getSaf(TEV2_SCOPEDIR, SAF_FILENAME);
+    Map<String, GeneratorContext> contextMap = wrangler.buildContextMap(saf, MRGTEST_VERSION);
+    assertThat(contextMap).isNotEmpty();
+    // check local context
+    assertThat(contextMap).containsKey(expectedScopetag);
+    GeneratorContext localContext = contextMap.get(expectedScopetag);
+    assertThat(localContext.getOwnerRepo()).isEqualTo("essif-lab/framework");
+    assertThat(localContext.getRootDirPath()).isEqualTo("docs/tev2");
+    assertThat(localContext.getSafFilepath()).isEqualTo("docs/tev2/saf.yaml");
+    // check external scopes
+    assertThat(contextMap)
+        .containsOnlyKeys(expectedScopetag, "essiflab", "essif-lab", "ctwg", "toip-ctwg");
+    // essiflab
+    GeneratorContext essiflabContext = contextMap.get("essiflab");
+    assertThat(essiflabContext.getOwnerRepo()).isEqualTo("essif-lab/framework");
+    assertThat(essiflabContext.getRootDirPath()).isEqualTo("docs");
+    // essif-lab
+    GeneratorContext essifLabContext = contextMap.get("essif-lab");
+    assertThat(essifLabContext.getOwnerRepo()).isEqualTo("essif-lab/framework");
+    assertThat(essifLabContext.getRootDirPath()).isEqualTo("docs");
+    // ctwg
+    GeneratorContext ctwgContext = contextMap.get("ctwg");
+    assertThat(ctwgContext.getOwnerRepo()).isEqualTo("trustoverip/ctwg");
+    assertThat(ctwgContext.getRootDirPath()).isEqualTo("/");
+    // toip-ctwg
+    GeneratorContext toipCtwgContext = contextMap.get("toip-ctwg");
+    assertThat(toipCtwgContext.getOwnerRepo()).isEqualTo("trustoverip/ctwg");
+    assertThat(toipCtwgContext.getRootDirPath()).isEqualTo("/");
+  }
 }
