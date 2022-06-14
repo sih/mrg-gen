@@ -17,6 +17,8 @@ class ModelWranglerIntegrationTest {
   private static final String PRIVATE_SCOPEDIR = "https://github.com/sih/scratch";
   private static final String SAF_FILENAME = "saf.yaml";
   private String expectedOwnerRepo = "essif-lab/framework";
+  private String expectedRootDirPath = "docs/tev2";
+  ;
   private String expectedSafFilepath = "docs/tev2/saf.yaml";
 
   private ModelWrangler wrangler;
@@ -56,6 +58,7 @@ class ModelWranglerIntegrationTest {
     String safString = wrangler.getSafAsString(TEV2_SCOPEDIR, SAF_FILENAME);
     assertThat(wrangler.getGeneratorContext()).isNotNull();
     assertThat(wrangler.getGeneratorContext().getOwnerRepo()).isEqualTo(expectedOwnerRepo);
+    assertThat(wrangler.getGeneratorContext().getRootDirPath()).isEqualTo(expectedRootDirPath);
     assertThat(wrangler.getGeneratorContext().getSafFilepath()).isEqualTo(expectedSafFilepath);
   }
 }

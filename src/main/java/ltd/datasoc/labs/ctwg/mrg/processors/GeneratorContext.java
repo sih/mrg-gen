@@ -10,6 +10,7 @@ import lombok.Setter;
 @Setter
 final class GeneratorContext {
   private String ownerRepo;
+  private String rootDirPath;
   private String safFilepath;
   private String mrgFilepath;
 }

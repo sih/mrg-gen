@@ -1,12 +1,13 @@
 package ltd.datasoc.labs.ctwg.mrg.processors;
 
+import static ltd.datasoc.labs.ctwg.mrg.processors.MRGlossaryGenerator.DEFAULT_MRG_FILENAME;
+
 import java.util.Arrays;
 import lombok.AccessLevel;
 import lombok.Getter;
 import ltd.datasoc.labs.ctwg.mrg.ltd.datasoc.labs.ctwg.connectors.GithubReader;
 import ltd.datasoc.labs.ctwg.mrg.model.MRGModel;
 import ltd.datasoc.labs.ctwg.mrg.model.SAFModel;
-import ltd.datasoc.labs.ctwg.mrg.model.Version;
 
 /**
  * @author sih
@@ -33,10 +34,16 @@ class ModelWrangler {
   // TODO getAllTerms and create a filter for the terms
 
 
+
+  SAFModel getSaf(String scopedir, String safFilename) throws MRGGenerationException {
+    String safAsString = this.getSafAsString(scopedir, safFilename);
+    SAFModel safModel = safParser.parse(safAsString);
+    return safModel;
+  }
+
   String getSafAsString(String scopedir, String safFilename) throws MRGGenerationException {
     String ownerRepo = getOwnerRepo(scopedir);
     String filePath = getFilepath(scopedir, safFilename);
-    generatorContext.setOwnerRepo(ownerRepo);
     generatorContext.setSafFilepath(filePath);
     try {
       return reader.getContent(ownerRepo, filePath);
@@ -47,19 +54,13 @@ class ModelWrangler {
     }
   }
 
-  SAFModel getSaf(String scopedir, String safFilename) throws MRGGenerationException {
-    String safAsString = this.getSafAsString(scopedir, safFilename);
-    SAFModel safModel = safParser.parse(safAsString);
-    return safModel;
-  }
-
-  Version getVersion(SAFModel saf, String versionTag) {
-    // TODO implement me
-    return null;
-  }
-
   MRGModel getMrg(String glossaryDir, String mrgFilename, String versionTag) {
     // TODO implement me
+    String mrgVersionFilename = String.join(".", DEFAULT_MRG_FILENAME, versionTag, "json");
+    String mrgFilepath = String.join("/", generatorContext.getRootDirPath(), mrgVersionFilename);
+    generatorContext.setMrgFilepath(mrgFilepath);
+    String mrgAsString = reader.getContent(generatorContext.getOwnerRepo(), mrgFilepath);
+
     return null;
   }
 
@@ -67,7 +68,9 @@ class ModelWrangler {
     int httpIndex = scopedir.indexOf(HTTPS) + HTTPS.length();
     int treeIndex = scopedir.indexOf(TREE) + TREE.length();
     String[] parts = scopedir.substring(httpIndex).split("/");
-    return String.join("/", parts[OWNER_PART_INDEX], parts[REPO_PART_INDEX]);
+    String ownerRepo = String.join("/", parts[OWNER_PART_INDEX], parts[REPO_PART_INDEX]);
+    generatorContext.setOwnerRepo(ownerRepo);
+    return ownerRepo;
   }
 
   private String getFilepath(String scopedir, String safFilename) {
@@ -79,6 +82,7 @@ class ModelWrangler {
     for (int i = 0; i < dirParts.length; i++) {
       path.append(dirParts[i]).append("/");
     }
+    generatorContext.setRootDirPath(path.substring(0, path.length() - 1));
     return path.append(safFilename).toString();
   }
 }

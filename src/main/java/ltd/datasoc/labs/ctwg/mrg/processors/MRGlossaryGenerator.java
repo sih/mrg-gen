@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class MRGlossaryGenerator {
 
-  public static final String DEFAULT_MRG_FILENAME = "mrg.json";
+  public static final String DEFAULT_MRG_FILENAME = "mrg";
   public static final String DEFAULT_SAF_FILENAME = "saf.yaml";
 
   private ModelWrangler wrangler;
