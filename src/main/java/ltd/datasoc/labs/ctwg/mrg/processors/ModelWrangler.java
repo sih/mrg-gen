@@ -1,7 +1,6 @@
-package ltd.datasoc.labs.ctwg.mrg.generators;
+package ltd.datasoc.labs.ctwg.mrg.processors;
 
 import java.util.Arrays;
-import ltd.datasoc.labs.ctwg.mrg.SAFParser;
 import ltd.datasoc.labs.ctwg.mrg.ltd.datasoc.labs.ctwg.connectors.GithubReader;
 import ltd.datasoc.labs.ctwg.mrg.model.MRGModel;
 import ltd.datasoc.labs.ctwg.mrg.model.SAFModel;
@@ -10,18 +9,18 @@ import ltd.datasoc.labs.ctwg.mrg.model.Version;
 /**
  * @author sih
  */
-public class ModelWrangler {
+final class ModelWrangler {
 
   private SAFParser safParser;
   private GithubReader reader;
 
-  public ModelWrangler() {
+  ModelWrangler() {
     safParser = new SAFParser();
     reader = new GithubReader();
   }
 
-  public static final String DEFAULT_MRG_FILENAME = "mrg.json";
-  public static final String DEFAULT_SAF_FILENAME = "saf.yaml";
+  static final String DEFAULT_MRG_FILENAME = "mrg.json";
+  static final String DEFAULT_SAF_FILENAME = "saf.yaml";
 
   private static final String HTTPS = "https://";
   private static final String TREE = "tree";
@@ -30,11 +29,11 @@ public class ModelWrangler {
 
   // TODO getAllTerms and create a filter for the terms
 
-  public String getSafAsString(String scopedir) throws MRGGenerationException {
+  String getSafAsString(String scopedir) throws MRGGenerationException {
     return getSafAsString(scopedir, DEFAULT_SAF_FILENAME);
   }
 
-  public String getSafAsString(String scopedir, String safFilename) throws MRGGenerationException {
+  String getSafAsString(String scopedir, String safFilename) throws MRGGenerationException {
     String ownerRepo = getOwnerRepo(scopedir);
     String filePath = getFilepath(scopedir, safFilename);
     try {
@@ -46,17 +45,27 @@ public class ModelWrangler {
     }
   }
 
-  public Version getVersion(SAFModel saf, String versionTag) {
+  SAFModel getSaf(String scopedir) throws MRGGenerationException {
+    return this.getSaf(scopedir, DEFAULT_SAF_FILENAME);
+  }
+
+  SAFModel getSaf(String scopedir, String safFilename) throws MRGGenerationException {
+    String safAsString = this.getSafAsString(scopedir, safFilename);
+    SAFModel safModel = safParser.parse(safAsString);
+    return safModel;
+  }
+
+  Version getVersion(SAFModel saf, String versionTag) {
     // TODO implement me
     return null;
   }
 
-  public MRGModel getMrg(String glossaryDir, String versionTag) {
+  MRGModel getMrg(String glossaryDir, String versionTag) {
     // TODO implement me
     return getMrg(glossaryDir, DEFAULT_MRG_FILENAME, versionTag);
   }
 
-  public MRGModel getMrg(String glossaryDir, String mrgFilename, String versionTag) {
+  MRGModel getMrg(String glossaryDir, String mrgFilename, String versionTag) {
     // TODO implement me
     return null;
   }

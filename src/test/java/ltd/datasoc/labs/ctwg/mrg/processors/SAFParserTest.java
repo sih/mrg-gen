@@ -1,7 +1,10 @@
-package ltd.datasoc.labs.ctwg.mrg;
+package ltd.datasoc.labs.ctwg.mrg.processors;
 
+import static ltd.datasoc.labs.ctwg.mrg.processors.MRGGenerationException.UNABLE_TO_PARSE_SAF;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -11,6 +14,7 @@ import ltd.datasoc.labs.ctwg.mrg.model.SAFModel;
 import ltd.datasoc.labs.ctwg.mrg.model.Scope;
 import ltd.datasoc.labs.ctwg.mrg.model.ScopeRef;
 import ltd.datasoc.labs.ctwg.mrg.model.Version;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,19 +24,46 @@ import org.junit.jupiter.api.Test;
 class SAFParserTest {
   private SAFParser safParser;
   private static final Path SAF_SAMPLE_1_FILE = Paths.get("./src/test/resources/saf-sample-1.yaml");
+  private static final Path INVALID_YAML_FILE = Paths.get("./src/test/resources/invalid-saf.yaml");
+  private String safAsString;
+  private String invalidYamlSaf;
+
   @BeforeEach
-  void setUp() {
+  void setUp() throws Exception {
     safParser = new SAFParser();
+    safAsString = new String(Files.readAllBytes(SAF_SAMPLE_1_FILE));
+    invalidYamlSaf = new String(Files.readAllBytes(INVALID_YAML_FILE));
   }
 
   @Test
   void given_realistic_sample_with_when_parse_then_populate() throws Exception {
-    SAFModel actualModel = safParser.parse(SAF_SAMPLE_1_FILE);
+    SAFModel actualModel = safParser.parse(safAsString);
     assertThat(actualModel).isNotNull();
     assertThat(actualModel.getScope()).isNotNull();
     assertThat(actualModel.getScopes()).isNotEmpty();
     assertThat(actualModel.getVersions()).isNotEmpty();
     assertSpecificChecksForSample1(actualModel);
+  }
+
+  @Test
+  void given_invalid_yaml_when_parse_then_throw_MRGException() throws Exception {
+    assertThatExceptionOfType(MRGGenerationException.class)
+        .isThrownBy(() -> safParser.parse(invalidYamlSaf))
+        .withMessage(UNABLE_TO_PARSE_SAF);
+  }
+
+  @Test
+  void given_null_string_when_parse_then_throw_MRGException() throws Exception {
+    assertThatExceptionOfType(MRGGenerationException.class)
+        .isThrownBy(() -> safParser.parse(null))
+        .withMessage(UNABLE_TO_PARSE_SAF);
+  }
+
+  @Test
+  void given_empty_string_when_parse_then_throw_MRGException() throws Exception {
+    assertThatExceptionOfType(MRGGenerationException.class)
+        .isThrownBy(() -> safParser.parse(StringUtils.EMPTY))
+        .withMessage(UNABLE_TO_PARSE_SAF);
   }
 
   private void assertSpecificChecksForSample1(SAFModel actualModel) {

@@ -1,4 +1,4 @@
-package ltd.datasoc.labs.ctwg.mrg.generators;
+package ltd.datasoc.labs.ctwg.mrg.processors;
 
 import java.security.PrivilegedActionException;
 import lombok.Getter;
@@ -13,6 +13,10 @@ public class MRGGenerationException extends Exception {
 
   public static final String NOT_FOUND =
       "%s: There is no such resource or anonymous access to this repository is not allowed.";
+
+  public static final String UNABLE_TO_PARSE_SAF =
+      "Unable to parse SAF. Check that it is valid YAML";
+
   /**
    * Constructs a new exception with {@code null} as its detail message. The cause is not
    * initialized, and may subsequently be initialized by a call to {@link #initCause}.

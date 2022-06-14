@@ -1,8 +1,7 @@
-package ltd.datasoc.labs.ctwg.mrg;
+package ltd.datasoc.labs.ctwg.mrg.processors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import ltd.datasoc.labs.ctwg.mrg.generators.MRGlossaryGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

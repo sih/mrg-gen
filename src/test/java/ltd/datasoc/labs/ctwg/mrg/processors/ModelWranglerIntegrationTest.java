@@ -1,6 +1,6 @@
-package ltd.datasoc.labs.ctwg.mrg.generators;
+package ltd.datasoc.labs.ctwg.mrg.processors;
 
-import static ltd.datasoc.labs.ctwg.mrg.generators.ModelWrangler.DEFAULT_SAF_FILENAME;
+import static ltd.datasoc.labs.ctwg.mrg.processors.ModelWrangler.DEFAULT_SAF_FILENAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
