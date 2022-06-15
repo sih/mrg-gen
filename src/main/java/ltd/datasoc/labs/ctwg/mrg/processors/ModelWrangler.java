@@ -20,9 +20,13 @@ class ModelWrangler {
   private SAFParser safParser;
   private GithubReader reader;
 
+  ModelWrangler(SAFParser safParser, GithubReader reader) {
+    this.safParser = safParser;
+    this.reader = reader;
+  }
+
   ModelWrangler() {
-    safParser = new SAFParser();
-    reader = new GithubReader();
+    this(new SAFParser(), new GithubReader());
   }
 
   private static final String HTTPS = "https://";
