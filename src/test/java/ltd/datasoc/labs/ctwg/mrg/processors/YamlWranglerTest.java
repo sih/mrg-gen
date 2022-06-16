@@ -21,8 +21,8 @@ import org.junit.jupiter.api.Test;
 /**
  * @author sih
  */
-class SAFParserTest {
-  private SAFParser safParser;
+class YamlWranglerTest {
+  private YamlWrangler yamlWrangler;
   private static final Path SAF_SAMPLE_1_FILE = Paths.get("./src/test/resources/saf-sample-1.yaml");
   private static final Path INVALID_YAML_FILE = Paths.get("./src/test/resources/invalid-saf.yaml");
   private String safAsString;
@@ -30,14 +30,14 @@ class SAFParserTest {
 
   @BeforeEach
   void setUp() throws Exception {
-    safParser = new SAFParser();
+    yamlWrangler = new YamlWrangler();
     safAsString = new String(Files.readAllBytes(SAF_SAMPLE_1_FILE));
     invalidYamlSaf = new String(Files.readAllBytes(INVALID_YAML_FILE));
   }
 
   @Test
   void given_realistic_sample_with_when_parse_then_populate() throws Exception {
-    SAFModel actualModel = safParser.parse(safAsString);
+    SAFModel actualModel = yamlWrangler.parseSaf(safAsString);
     assertThat(actualModel).isNotNull();
     assertThat(actualModel.getScope()).isNotNull();
     assertThat(actualModel.getScopes()).isNotEmpty();
@@ -48,21 +48,21 @@ class SAFParserTest {
   @Test
   void given_invalid_yaml_when_parse_then_throw_MRGException() throws Exception {
     assertThatExceptionOfType(MRGGenerationException.class)
-        .isThrownBy(() -> safParser.parse(invalidYamlSaf))
+        .isThrownBy(() -> yamlWrangler.parseSaf(invalidYamlSaf))
         .withMessage(UNABLE_TO_PARSE_SAF);
   }
 
   @Test
   void given_null_string_when_parse_then_throw_MRGException() throws Exception {
     assertThatExceptionOfType(MRGGenerationException.class)
-        .isThrownBy(() -> safParser.parse(null))
+        .isThrownBy(() -> yamlWrangler.parseSaf(null))
         .withMessage(UNABLE_TO_PARSE_SAF);
   }
 
   @Test
   void given_empty_string_when_parse_then_throw_MRGException() throws Exception {
     assertThatExceptionOfType(MRGGenerationException.class)
-        .isThrownBy(() -> safParser.parse(StringUtils.EMPTY))
+        .isThrownBy(() -> yamlWrangler.parseSaf(StringUtils.EMPTY))
         .withMessage(UNABLE_TO_PARSE_SAF);
   }
 

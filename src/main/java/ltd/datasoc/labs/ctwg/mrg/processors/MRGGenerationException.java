@@ -14,12 +14,17 @@ public class MRGGenerationException extends Exception {
   static final String NOT_FOUND =
       "%s: There is no such resource or anonymous access to this repository is not allowed.";
 
-  static final String UNABLE_TO_PARSE_SAF = "Unable to parse SAF. Check that it is valid YAML";
+  static final String UNABLE_TO_PARSE_SAF =
+      "Generation failed: Unable to parse SAF. Check that it is valid YAML";
 
   static final String NO_GLOSSARY_DIR =
-      "The glossarydir attribute in the SAF scope is empty so no terms can be imported.";
+      "Generation failed: The glossarydir attribute in the SAF scope is empty so no location to save MRG.";
 
-  static final String NO_SUCH_VERSION = "No version with version tag (vsntag) of %s found in SAF";
+  static final String NO_SUCH_VERSION =
+      "Generation failed: No version with version tag (vsntag) of %s found in SAF";
+
+  static final String CANNOT_WRITE_MRG = "Generation failed: Unable to write MRG to location %s";
+
   /**
    * Constructs a new exception with {@code null} as its detail message. The cause is not
    * initialized, and may subsequently be initialized by a call to {@link #initCause}.

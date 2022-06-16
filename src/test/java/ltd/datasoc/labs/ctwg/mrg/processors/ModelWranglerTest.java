@@ -25,7 +25,7 @@ class ModelWranglerTest {
 
   private static final String MRGTEST_VERSION = "mrgtest";
   @Mock private GithubReader mockReader;
-  private SAFParser safParser = new SAFParser();
+  private YamlWrangler yamlWrangler = new YamlWrangler();
   private ModelWrangler wrangler;
   private static final Path INVALID_SAF = Paths.get("./src/test/resources/invalid-saf.yaml");
   private static final Path VALID_SAF = Paths.get("./src/test/resources/saf-sample-1.yaml");
@@ -40,7 +40,7 @@ class ModelWranglerTest {
 
   @BeforeEach
   void set_up() throws Exception {
-    wrangler = new ModelWrangler(safParser, mockReader);
+    wrangler = new ModelWrangler(yamlWrangler, mockReader);
     invalidSafContent = new String(Files.readAllBytes(INVALID_SAF));
     validSafContent = new String(Files.readAllBytes(VALID_SAF));
   }

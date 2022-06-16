@@ -1,13 +1,17 @@
 package ltd.datasoc.labs.ctwg.mrg.processors;
 
 import static ltd.datasoc.labs.ctwg.mrg.processors.MRGGenerationException.NO_SUCH_VERSION;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.when;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import ltd.datasoc.labs.ctwg.mrg.model.MRGModel;
 import ltd.datasoc.labs.ctwg.mrg.model.SAFModel;
+import ltd.datasoc.labs.ctwg.mrg.model.ScopeRef;
+import ltd.datasoc.labs.ctwg.mrg.model.Terminology;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,13 +40,13 @@ class MRGlossaryGeneratorTest {
 
   @BeforeEach
   void set_up() throws Exception {
-    SAFParser parser = new SAFParser();
+    YamlWrangler parser = new YamlWrangler();
     scopedir = "scopedir";
     safFilename = "saf.yaml";
     version = "version";
     generator = new MRGlossaryGenerator(mockWrangler);
-    validSaf = parser.parse(new String(Files.readAllBytes(VALID_SAF_PATH)));
-    noGlossarySaf = parser.parse(new String(Files.readAllBytes(NO_GLOSSARY_SAF_PATH)));
+    validSaf = parser.parseSaf(new String(Files.readAllBytes(VALID_SAF_PATH)));
+    noGlossarySaf = parser.parseSaf(new String(Files.readAllBytes(NO_GLOSSARY_SAF_PATH)));
   }
 
   @Test
@@ -63,6 +67,21 @@ class MRGlossaryGeneratorTest {
     assertThatExceptionOfType(MRGGenerationException.class)
         .isThrownBy(() -> generator.generate(scopedir, safFilename, badVersion))
         .withMessage(expectedNoVersionMessage);
+  }
+
+  @Test
+  @DisplayName("Given valid input generate should create MRG")
+  void given_valid_input_generate_should_create_mrg() throws Exception {
+    when(mockWrangler.getSaf(scopedir, safFilename)).thenReturn(validSaf);
+    String validVersion = "mrgtest";
+    MRGModel generatedMrg = generator.generate(scopedir, safFilename, validVersion);
+    assertThat(generatedMrg).isNotNull();
+    assertThat(generatedMrg.terminology())
+        .isEqualTo(
+            new Terminology(validSaf.getScope().getScopetag(), validSaf.getScope().getScopedir()));
+    ScopeRef[] expectedScopesInOrder = validSaf.getScopes().toArray(new ScopeRef[0]);
+    assertThat(generatedMrg.scopes()).containsExactly(expectedScopesInOrder);
+    // TODO entries
   }
 
   /*

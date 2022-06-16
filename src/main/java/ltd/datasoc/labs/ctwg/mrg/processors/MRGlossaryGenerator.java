@@ -3,19 +3,25 @@ package ltd.datasoc.labs.ctwg.mrg.processors;
 import static ltd.datasoc.labs.ctwg.mrg.processors.MRGGenerationException.NO_GLOSSARY_DIR;
 import static ltd.datasoc.labs.ctwg.mrg.processors.MRGGenerationException.NO_SUCH_VERSION;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import ltd.datasoc.labs.ctwg.mrg.model.MRGEntry;
 import ltd.datasoc.labs.ctwg.mrg.model.MRGModel;
 import ltd.datasoc.labs.ctwg.mrg.model.SAFModel;
+import ltd.datasoc.labs.ctwg.mrg.model.ScopeRef;
+import ltd.datasoc.labs.ctwg.mrg.model.Terminology;
 import ltd.datasoc.labs.ctwg.mrg.model.Version;
 import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author sih
  */
+@Slf4j
 public class MRGlossaryGenerator {
 
   public static final String DEFAULT_MRG_FILENAME = "mrg";
@@ -43,10 +49,19 @@ public class MRGlossaryGenerator {
       throw new MRGGenerationException(NO_GLOSSARY_DIR);
     }
     Version localVersion = getVersion(saf, versionTag);
+    String mrgFilename = constructFilename(localVersion);
+    log.debug(String.format("MRG filename to be generated is: %s", mrgFilename));
+    // construct the parts of the MRG Model
+    Terminology terminology =
+        new Terminology(saf.getScope().getScopetag(), saf.getScope().getScopedir());
+    List<ScopeRef> scopes = new ArrayList<>(saf.getScopes());
+    List<MRGEntry> entries = constructLocalEntries(localVersion);
+    entries.addAll(constructRemoteEntries(saf, localVersion));
 
-    // TODO handle version, e.g. "[party](@essif-lab:0.9.4)"
+    MRGModel mrg = new MRGModel(terminology, scopes, entries);
+    wrangler.writeMrgToFile(mrg, ".", glossaryDir, mrgFilename);
 
-    return null;
+    return mrg;
   }
 
   private Version getVersion(SAFModel saf, String versionTag) throws MRGGenerationException {
@@ -60,5 +75,19 @@ public class MRGlossaryGenerator {
     }
     return version.orElseThrow(
         () -> new MRGGenerationException(String.format(NO_SUCH_VERSION, versionTag)));
+  }
+
+  private String constructFilename(Version localVersion) {
+    // mrg.<versionTag>.yaml
+    return String.join(".", DEFAULT_MRG_FILENAME, localVersion.getVsntag(), "yaml");
+  }
+
+  private List<MRGEntry> constructLocalEntries(Version localVersion) {
+    // TODO
+    return new ArrayList<>();
+  }
+
+  private List<MRGEntry> constructRemoteEntries(SAFModel saf, Version localVersion) {
+    return new ArrayList<>();
   }
 }

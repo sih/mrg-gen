@@ -17,6 +17,7 @@
     <jackson.version>2.13.0</jackson.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <lombok.version>1.18.24</lombok.version>
+    <log4j.version>2.6.2</log4j.version>
     <github-api.version>1.306</github-api.version>
     <assertj.version>3.18.1</assertj.version>
     <junit-jupiter.version>5.8.1</junit-jupiter.version>
@@ -28,6 +29,21 @@
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <version>${lombok.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <version>${log4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>${log4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+      <version>${log4j.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>

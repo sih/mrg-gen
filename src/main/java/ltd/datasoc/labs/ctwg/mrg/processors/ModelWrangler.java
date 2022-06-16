@@ -1,8 +1,8 @@
 package ltd.datasoc.labs.ctwg.mrg.processors;
 
-import static ltd.datasoc.labs.ctwg.mrg.processors.MRGlossaryGenerator.DEFAULT_MRG_FILENAME;
 import static ltd.datasoc.labs.ctwg.mrg.processors.MRGlossaryGenerator.DEFAULT_SAF_FILENAME;
 
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -17,16 +17,16 @@ import ltd.datasoc.labs.ctwg.mrg.model.ScopeRef;
  */
 class ModelWrangler {
 
-  private SAFParser safParser;
+  private YamlWrangler yamlWrangler;
   private GithubReader reader;
 
-  ModelWrangler(SAFParser safParser, GithubReader reader) {
-    this.safParser = safParser;
+  ModelWrangler(YamlWrangler yamlWrangler, GithubReader reader) {
+    this.yamlWrangler = yamlWrangler;
     this.reader = reader;
   }
 
   ModelWrangler() {
-    this(new SAFParser(), new GithubReader());
+    this(new YamlWrangler(), new GithubReader());
   }
 
   private static final String HTTPS = "https://";
@@ -38,10 +38,9 @@ class ModelWrangler {
   // TODO getAllTerms and create a filter for the terms
 
 
-
   SAFModel getSaf(String scopedir, String safFilename) throws MRGGenerationException {
     String safAsString = this.getSafAsString(scopedir, safFilename);
-    SAFModel safModel = safParser.parse(safAsString);
+    SAFModel safModel = yamlWrangler.parseSaf(safAsString);
     return safModel;
   }
 
@@ -65,7 +64,6 @@ class ModelWrangler {
     String localScopedir = saf.getScope().getScopedir();
     GeneratorContext localContext = createSkeletonContext(localScopedir);
     contextMap.put(localScope, localContext);
-    String mrgFilename = String.join(".", DEFAULT_MRG_FILENAME, versionTag, MRG_FILE_EXTENSION);
     // create skeleton external scopes
     List<ScopeRef> externalScopes = saf.getScopes();
     for (ScopeRef externalScope : externalScopes) {
@@ -79,18 +77,17 @@ class ModelWrangler {
     return contextMap;
   }
 
+  void writeMrgToFile(MRGModel mrg, String rootDir, String glossaryDir, String mrgFilename)
+      throws MRGGenerationException {
+    Path mrgFilepath = Path.of(rootDir, glossaryDir, mrgFilename);
+  }
+
   private GeneratorContext createSkeletonContext(String scopedir) {
     String ownerRepo = getOwnerRepo(scopedir);
     String rootPath = getRootPath(scopedir);
     return new GeneratorContext(ownerRepo, rootPath);
   }
 
-  MRGModel getMrg(String glossaryDir, String mrgFilename, String versionTag) {
-    // TODO implement me
-    String mrgVersionFilename = String.join(".", DEFAULT_MRG_FILENAME, versionTag, "json");
-
-    return null;
-  }
 
   private String getOwnerRepo(String scopedir) {
     int httpIndex = scopedir.indexOf(HTTPS) + HTTPS.length();
