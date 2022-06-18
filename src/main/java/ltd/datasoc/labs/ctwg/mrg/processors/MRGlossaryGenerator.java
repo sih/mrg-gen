@@ -27,6 +27,8 @@ public class MRGlossaryGenerator {
   public static final String DEFAULT_MRG_FILENAME = "mrg";
   public static final String DEFAULT_SAF_FILENAME = "saf.yaml";
 
+  private static final String TERMS_DIR = "./terms";
+
   private ModelWrangler wrangler;
 
   @Setter(AccessLevel.PRIVATE)
@@ -55,7 +57,7 @@ public class MRGlossaryGenerator {
     Terminology terminology =
         new Terminology(saf.getScope().getScopetag(), saf.getScope().getScopedir());
     List<ScopeRef> scopes = new ArrayList<>(saf.getScopes());
-    List<MRGEntry> entries = constructLocalEntries(localVersion);
+    List<MRGEntry> entries = constructLocalEntries(saf, localVersion);
     entries.addAll(constructRemoteEntries(saf, localVersion));
 
     MRGModel mrg = new MRGModel(terminology, scopes, entries);
@@ -82,11 +84,18 @@ public class MRGlossaryGenerator {
     return String.join(".", DEFAULT_MRG_FILENAME, localVersion.getVsntag(), "yaml");
   }
 
-  private List<MRGEntry> constructLocalEntries(Version localVersion) {
+  /*
+   Local entries are selected from the curatedDir
+  */
+  private List<MRGEntry> constructLocalEntries(SAFModel saf, Version localVersion) {
+    String curatedDir = saf.getScope().getCuratedir();
     // TODO
     return new ArrayList<>();
   }
 
+  /*
+   Remote entries are selected from the mrg
+  */
   private List<MRGEntry> constructRemoteEntries(SAFModel saf, Version localVersion) {
     return new ArrayList<>();
   }

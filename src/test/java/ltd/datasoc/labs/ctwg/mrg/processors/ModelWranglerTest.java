@@ -8,10 +8,13 @@ import static org.mockito.Mockito.when;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 import ltd.datasoc.labs.ctwg.mrg.ltd.datasoc.labs.ctwg.connectors.GithubReader;
 import ltd.datasoc.labs.ctwg.mrg.model.SAFModel;
+import ltd.datasoc.labs.ctwg.mrg.model.Term;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -38,11 +41,21 @@ class ModelWranglerTest {
   private String invalidSafContent;
   private String validSafContent;
 
+  private static final String ROOT_DIR = "docs/tev2";
+  private static final String CURATED_DIR_NAME = "terms";
+  private static final String CURATED_DIR_PATH = String.join("/", ROOT_DIR, CURATED_DIR_NAME);
+  private static final Path CURATED_TERM_TERM = Paths.get("./src/test/resources/term.md");
+  private static final Path CURATED_TERM_SCOPE = Paths.get("./src/test/resources/scope.md");
+  private String termStringTerm;
+  private String termStringScope;
+
   @BeforeEach
   void set_up() throws Exception {
     wrangler = new ModelWrangler(yamlWrangler, mockReader);
     invalidSafContent = new String(Files.readAllBytes(INVALID_SAF));
     validSafContent = new String(Files.readAllBytes(VALID_SAF));
+    termStringTerm = new String(Files.readAllBytes(CURATED_TERM_TERM));
+    termStringScope = new String(Files.readAllBytes(CURATED_TERM_SCOPE));
   }
 
   @Test
@@ -98,5 +111,16 @@ class ModelWranglerTest {
     GeneratorContext toipCtwgContext = contextMap.get("toip-ctwg");
     assertThat(toipCtwgContext.getOwnerRepo()).isEqualTo("trustoverip/ctwg");
     assertThat(toipCtwgContext.getRootDirPath()).isEqualTo("/");
+  }
+
+  @DisplayName("Given valid terms in the directory when fetch terms then return the right terms")
+  @Test
+  void testFetchTermsValid() throws Exception {
+    int expectedSize = 2;
+    when(mockReader.getDirectoryContent(OWNER_REPO, CURATED_DIR_PATH))
+        .thenReturn(List.of(termStringTerm, termStringScope));
+    GeneratorContext context = new GeneratorContext(OWNER_REPO, ROOT_DIR);
+    List<Term> terms = wrangler.fetchTerms(context, CURATED_DIR_NAME);
+    assertThat(terms).hasSize(expectedSize);
   }
 }

@@ -1,5 +1,6 @@
 package ltd.datasoc.labs.ctwg.mrg.processors;
 
+import static ltd.datasoc.labs.ctwg.mrg.processors.MRGGenerationException.CANNOT_PARSE_TERM;
 import static ltd.datasoc.labs.ctwg.mrg.processors.MRGGenerationException.CANNOT_WRITE_MRG;
 import static ltd.datasoc.labs.ctwg.mrg.processors.MRGGenerationException.UNABLE_TO_PARSE_SAF;
 
@@ -11,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import ltd.datasoc.labs.ctwg.mrg.model.MRGModel;
 import ltd.datasoc.labs.ctwg.mrg.model.SAFModel;
+import ltd.datasoc.labs.ctwg.mrg.model.Term;
 
 /**
  * @author sih
@@ -29,6 +31,14 @@ final class YamlWrangler {
       return yamlMapper.readValue(safAsString, SAFModel.class);
     } catch (Exception e) {
       throw new MRGGenerationException(UNABLE_TO_PARSE_SAF);
+    }
+  }
+
+  Term parseTerm(String termString) throws MRGGenerationException {
+    try {
+      return yamlMapper.readValue(termString, Term.class);
+    } catch (Exception e) {
+      throw new MRGGenerationException(String.format(CANNOT_PARSE_TERM, termString));
     }
   }
 

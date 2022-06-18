@@ -9,7 +9,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class MRGGenerationException extends Exception {
+public class MRGGenerationException extends RuntimeException {
 
   static final String NOT_FOUND =
       "%s: There is no such resource or anonymous access to this repository is not allowed.";
@@ -24,6 +24,8 @@ public class MRGGenerationException extends Exception {
       "Generation failed: No version with version tag (vsntag) of %s found in SAF";
 
   static final String CANNOT_WRITE_MRG = "Generation failed: Unable to write MRG to location %s";
+
+  static final String CANNOT_PARSE_TERM = "Could not create term from input string of:\n%s";
 
   /**
    * Constructs a new exception with {@code null} as its detail message. The cause is not
