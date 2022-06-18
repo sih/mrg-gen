@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import ltd.datasoc.labs.ctwg.mrg.ltd.datasoc.labs.ctwg.connectors.GithubReader;
+import ltd.datasoc.labs.ctwg.mrg.connectors.GithubReader;
 import ltd.datasoc.labs.ctwg.mrg.model.MRGModel;
 import ltd.datasoc.labs.ctwg.mrg.model.SAFModel;
 import ltd.datasoc.labs.ctwg.mrg.model.ScopeRef;

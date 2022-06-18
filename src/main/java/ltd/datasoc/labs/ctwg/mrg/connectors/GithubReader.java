@@ -1,4 +1,4 @@
-package ltd.datasoc.labs.ctwg.mrg.ltd.datasoc.labs.ctwg.connectors;
+package ltd.datasoc.labs.ctwg.mrg.connectors;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
-import ltd.datasoc.labs.ctwg.mrg.ltd.datasoc.labs.ctwg.connectors.GithubReader;
+import ltd.datasoc.labs.ctwg.mrg.connectors.GithubReader;
 import ltd.datasoc.labs.ctwg.mrg.model.SAFModel;
 import ltd.datasoc.labs.ctwg.mrg.model.Term;
 import org.junit.jupiter.api.BeforeEach;

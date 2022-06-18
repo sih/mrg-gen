@@ -1,4 +1,4 @@
-package ltd.datasoc.labs.ctwg.mrg.ltd.datasoc.labs.ctwg.connectors;
+package ltd.datasoc.labs.ctwg.mrg.connectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
