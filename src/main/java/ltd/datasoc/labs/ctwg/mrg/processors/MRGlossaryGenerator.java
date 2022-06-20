@@ -10,10 +10,14 @@ import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import ltd.datasoc.labs.ctwg.mrg.connectors.GithubReader;
+import ltd.datasoc.labs.ctwg.mrg.connectors.LocalFSConnector;
+import ltd.datasoc.labs.ctwg.mrg.connectors.MRGConnector;
 import ltd.datasoc.labs.ctwg.mrg.model.MRGEntry;
 import ltd.datasoc.labs.ctwg.mrg.model.MRGModel;
 import ltd.datasoc.labs.ctwg.mrg.model.SAFModel;
 import ltd.datasoc.labs.ctwg.mrg.model.ScopeRef;
+import ltd.datasoc.labs.ctwg.mrg.model.Term;
 import ltd.datasoc.labs.ctwg.mrg.model.Terminology;
 import ltd.datasoc.labs.ctwg.mrg.model.Version;
 import org.apache.commons.lang3.StringUtils;
@@ -27,15 +31,23 @@ public class MRGlossaryGenerator {
   public static final String DEFAULT_MRG_FILENAME = "mrg";
   public static final String DEFAULT_SAF_FILENAME = "saf.yaml";
 
-  private static final String TERMS_DIR = "./terms";
-
   private ModelWrangler wrangler;
 
   @Setter(AccessLevel.PRIVATE)
   private Map<String, GeneratorContext> contextMap;
 
   public MRGlossaryGenerator() {
-    this(new ModelWrangler());
+    this(true);
+  }
+
+  public MRGlossaryGenerator(boolean runLocal) {
+    MRGConnector connector;
+    if (runLocal) {
+      connector = new LocalFSConnector();
+    } else {
+      connector = new GithubReader();
+    }
+    wrangler = new ModelWrangler(new YamlWrangler(), connector);
   }
 
   public MRGlossaryGenerator(ModelWrangler wrangler) {
@@ -57,11 +69,12 @@ public class MRGlossaryGenerator {
     Terminology terminology =
         new Terminology(saf.getScope().getScopetag(), saf.getScope().getScopedir());
     List<ScopeRef> scopes = new ArrayList<>(saf.getScopes());
-    List<MRGEntry> entries = constructLocalEntries(saf, localVersion);
-    entries.addAll(constructRemoteEntries(saf, localVersion));
-
+    List<MRGEntry> entries =
+        constructLocalEntries(contextMap.get(saf.getScope().getScopetag()), localVersion);
+    // TODO
+    //    entries.addAll(constructRemoteEntries(saf, localVersion));
     MRGModel mrg = new MRGModel(terminology, scopes, entries);
-    wrangler.writeMrgToFile(mrg, ".", glossaryDir, mrgFilename);
+    wrangler.writeMrgToFile(mrg, mrgFilename);
 
     return mrg;
   }
@@ -87,10 +100,15 @@ public class MRGlossaryGenerator {
   /*
    Local entries are selected from the curatedDir
   */
-  private List<MRGEntry> constructLocalEntries(SAFModel saf, Version localVersion) {
-    String curatedDir = saf.getScope().getCuratedir();
-    // TODO
-    return new ArrayList<>();
+  private List<MRGEntry> constructLocalEntries(
+      GeneratorContext localContext, Version localVersion) {
+    // TODO don't just get the first
+    // e.g. [tev2]@tev2"
+    // TODO use regex instead
+    String unfilteredFilter = localVersion.getTerms().get(0).replace("[", "").replace("]", "");
+    String filterTerm = unfilteredFilter.split("@")[0];
+    List<Term> localTerms = wrangler.fetchTerms(localContext, filterTerm);
+    return localTerms.stream().map(MRGEntry::new).toList();
   }
 
   /*

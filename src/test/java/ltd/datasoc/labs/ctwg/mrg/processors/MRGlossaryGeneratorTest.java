@@ -5,12 +5,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
 import ltd.datasoc.labs.ctwg.mrg.model.MRGModel;
 import ltd.datasoc.labs.ctwg.mrg.model.SAFModel;
 import ltd.datasoc.labs.ctwg.mrg.model.ScopeRef;
+import ltd.datasoc.labs.ctwg.mrg.model.Term;
 import ltd.datasoc.labs.ctwg.mrg.model.Terminology;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,9 +39,25 @@ class MRGlossaryGeneratorTest {
   private String version;
   private SAFModel noGlossarySaf;
   private SAFModel validSaf;
+
+  private static final String OWNER_REPO = "essif-lab/framework";
+  private static final String ROOT_DIR_PATH = "docs";
+  private static final String CURATED_DIR = "terms";
+  private static final String VERSION_TAG = "mrgtest";
+  private static final String FILTER_TERM = "tev2";
+
   private static final Path NO_GLOSSARY_SAF_PATH =
       Paths.get("./src/test/resources/no-glossary-saf.yaml");
   private static final Path VALID_SAF_PATH = Paths.get("./src/test/resources/saf-sample-1.yaml");
+
+  private static final Path BASIC_TERM_FILE = Paths.get("./src/test/resources/basic-term.yaml");
+  private GeneratorContext context;
+
+  private List<Term> matchingTerms;
+
+  private Term termTerm;
+  private Term termScope;
+  private ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
   @BeforeEach
   void set_up() throws Exception {
@@ -47,6 +68,10 @@ class MRGlossaryGeneratorTest {
     generator = new MRGlossaryGenerator(mockWrangler);
     validSaf = parser.parseSaf(new String(Files.readAllBytes(VALID_SAF_PATH)));
     noGlossarySaf = parser.parseSaf(new String(Files.readAllBytes(NO_GLOSSARY_SAF_PATH)));
+    context = new GeneratorContext(OWNER_REPO, ROOT_DIR_PATH, VERSION_TAG, CURATED_DIR);
+    String termStringTerm = new String(Files.readAllBytes(BASIC_TERM_FILE));
+    termTerm = yamlMapper.readValue(termStringTerm, Term.class);
+    matchingTerms = List.of(termTerm);
   }
 
   @Test
@@ -71,10 +96,12 @@ class MRGlossaryGeneratorTest {
 
   @Test
   @DisplayName("Given valid input generate should create MRG")
-  void given_valid_input_generate_should_create_mrg() throws Exception {
+  void given_valid_input_generate_should_create_mrg() {
     when(mockWrangler.getSaf(scopedir, safFilename)).thenReturn(validSaf);
-    String validVersion = "mrgtest";
-    MRGModel generatedMrg = generator.generate(scopedir, safFilename, validVersion);
+    when(mockWrangler.buildContextMap(validSaf, VERSION_TAG))
+        .thenReturn(Map.of(validSaf.getScope().getScopetag(), context));
+    when(mockWrangler.fetchTerms(context, FILTER_TERM)).thenReturn(matchingTerms);
+    MRGModel generatedMrg = generator.generate(scopedir, safFilename, VERSION_TAG);
     assertThat(generatedMrg).isNotNull();
     assertThat(generatedMrg.terminology())
         .isEqualTo(

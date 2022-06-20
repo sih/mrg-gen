@@ -1,4 +1,4 @@
-package ltd.datasoc.labs.ctwg.mrg.ltd.datasoc.labs.ctwg.connectors;
+package ltd.datasoc.labs.ctwg.mrg.connectors;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,18 +15,22 @@ import org.kohsuke.github.GitHub;
  * @author sih
  */
 @Slf4j
-public class GithubReader {
+public class GithubReader implements MRGConnector {
 
+  private static final String GH_NAME = "GH_NAME";
+
+  private static final String GH_TOKEN = "GH_TOKEN";
   private GitHub gh;
 
   public GithubReader() {
     try {
-      gh = GitHub.connectAnonymously();
+      gh = GitHub.connect(System.getenv(GH_NAME), System.getenv(GH_TOKEN));
     } catch (IOException ioe) {
       throw new RuntimeException(ioe.getMessage());
     }
   }
 
+  @Override
   public String getContent(final String repository, final String contentName) {
     GHRepository repo = null;
     try {
@@ -42,13 +46,20 @@ public class GithubReader {
     }
   }
 
-  public List<String> getDirectoryContent(final String repository, final String directoryName) {
-    List<String> contents = new ArrayList<>();
+  @Override
+  public List<FileContent> getDirectoryContent(
+      final String repository, final String directoryName) {
+    List<FileContent> contents = new ArrayList<>();
     try {
       GHRepository repo = gh.getRepository(repository);
       List<GHContent> gitContents = repo.getDirectoryContent(directoryName);
       if (gitContents != null && !gitContents.isEmpty()) {
-        contents = gitContents.stream().map(gc -> this.contentAsString(gc)).toList();
+        contents =
+            gitContents.stream()
+                .map(
+                    gc ->
+                        new FileContent(gc.getName(), this.contentAsString(gc), new ArrayList<>()))
+                .toList();
       }
     } catch (GHFileNotFoundException e) {
       log.warn("There's no such directory {} in the repo {}", directoryName, repository);
@@ -67,16 +78,4 @@ public class GithubReader {
     }
   }
 
-  public static void main(String[] args) {
-    try {
-      GitHub gh = GitHub.connectAnonymously();
-      GHRepository repo = gh.getRepository("essif-lab/framework");
-      GHContent content = repo.getFileContent("README.md");
-      InputStream is = content.read();
-      String sContent = new String(is.readAllBytes(), StandardCharsets.US_ASCII);
-      System.out.println(sContent);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
 }

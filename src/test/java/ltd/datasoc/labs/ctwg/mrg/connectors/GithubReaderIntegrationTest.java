@@ -1,4 +1,4 @@
-package ltd.datasoc.labs.ctwg.mrg.ltd.datasoc.labs.ctwg.connectors;
+package ltd.datasoc.labs.ctwg.mrg.connectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,14 +34,14 @@ class GithubReaderIntegrationTest {
     */
     int expectedSizeLow = 13;
     int expectedSizeHigh = 30;
-    List<String> directoryItems = reader.getDirectoryContent(repo, curatedDir);
+    List<FileContent> directoryItems = reader.getDirectoryContent(repo, curatedDir);
     assertThat(directoryItems).hasSizeBetween(expectedSizeLow, expectedSizeHigh);
   }
 
   @Test
   @DisplayName("When reading an invalid directory getDirectoryContent should return an empty array")
   void testInvalidDirectory() {
-    List<String> directoryItems = reader.getDirectoryContent(repo, nonExistentDir);
+    List<FileContent> directoryItems = reader.getDirectoryContent(repo, nonExistentDir);
     assertThat(directoryItems).isEmpty();
   }
 }

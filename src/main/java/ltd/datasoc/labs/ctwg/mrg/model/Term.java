@@ -1,5 +1,8 @@
 package ltd.datasoc.labs.ctwg.mrg.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.List;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,6 +26,14 @@ public class Term implements Comparable<Term> {
   private String vsntag;
   private String commit;
   private String contributors;
+
+  @JsonIgnore
+  @Getter(AccessLevel.PROTECTED)
+  private String filename;
+
+  @JsonIgnore
+  @Getter(AccessLevel.PROTECTED)
+  private List<String> headings;
 
   @Override
   public int compareTo(Term other) {

@@ -8,9 +8,11 @@ import static org.mockito.Mockito.when;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import ltd.datasoc.labs.ctwg.mrg.ltd.datasoc.labs.ctwg.connectors.GithubReader;
+import ltd.datasoc.labs.ctwg.mrg.connectors.FileContent;
+import ltd.datasoc.labs.ctwg.mrg.connectors.GithubReader;
 import ltd.datasoc.labs.ctwg.mrg.model.SAFModel;
 import ltd.datasoc.labs.ctwg.mrg.model.Term;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,19 +45,25 @@ class ModelWranglerTest {
 
   private static final String ROOT_DIR = "docs/tev2";
   private static final String CURATED_DIR_NAME = "terms";
+
+  private static final String SCOPETAG = "tev2";
   private static final String CURATED_DIR_PATH = String.join("/", ROOT_DIR, CURATED_DIR_NAME);
-  private static final Path CURATED_TERM_TERM = Paths.get("./src/test/resources/term.md");
-  private static final Path CURATED_TERM_SCOPE = Paths.get("./src/test/resources/scope.md");
-  private String termStringTerm;
-  private String termStringScope;
+  static final Path CURATED_TERM_TERM = Paths.get("./src/test/resources/term.md");
+  static final Path CURATED_TERM_SCOPE = Paths.get("./src/test/resources/scope.md");
+  private FileContent termStringTerm;
+  private FileContent termStringScope;
 
   @BeforeEach
   void set_up() throws Exception {
     wrangler = new ModelWrangler(yamlWrangler, mockReader);
     invalidSafContent = new String(Files.readAllBytes(INVALID_SAF));
     validSafContent = new String(Files.readAllBytes(VALID_SAF));
-    termStringTerm = new String(Files.readAllBytes(CURATED_TERM_TERM));
-    termStringScope = new String(Files.readAllBytes(CURATED_TERM_SCOPE));
+    termStringTerm =
+        new FileContent(
+            "term.md", new String(Files.readAllBytes(CURATED_TERM_TERM)), new ArrayList<>());
+    termStringScope =
+        new FileContent(
+            "scope.md", new String(Files.readAllBytes(CURATED_TERM_SCOPE)), new ArrayList<>());
   }
 
   @Test
@@ -119,8 +127,9 @@ class ModelWranglerTest {
     int expectedSize = 2;
     when(mockReader.getDirectoryContent(OWNER_REPO, CURATED_DIR_PATH))
         .thenReturn(List.of(termStringTerm, termStringScope));
-    GeneratorContext context = new GeneratorContext(OWNER_REPO, ROOT_DIR);
-    List<Term> terms = wrangler.fetchTerms(context, CURATED_DIR_NAME);
+    GeneratorContext context =
+        new GeneratorContext(OWNER_REPO, ROOT_DIR, MRGTEST_VERSION, CURATED_DIR_NAME);
+    List<Term> terms = wrangler.fetchTerms(context, SCOPETAG);
     assertThat(terms).hasSize(expectedSize);
   }
 }

@@ -27,6 +27,7 @@ public class MRGGenerationException extends RuntimeException {
 
   static final String CANNOT_PARSE_TERM = "Could not create term from input string of:\n%s";
 
+
   /**
    * Constructs a new exception with {@code null} as its detail message. The cause is not
    * initialized, and may subsequently be initialized by a call to {@link #initCause}.
