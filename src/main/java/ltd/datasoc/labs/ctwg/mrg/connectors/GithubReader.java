@@ -42,13 +42,17 @@ public class GithubReader {
     }
   }
 
-  public List<String> getDirectoryContent(final String repository, final String directoryName) {
-    List<String> contents = new ArrayList<>();
+  public List<FileContent> getDirectoryContent(
+      final String repository, final String directoryName) {
+    List<FileContent> contents = new ArrayList<>();
     try {
       GHRepository repo = gh.getRepository(repository);
       List<GHContent> gitContents = repo.getDirectoryContent(directoryName);
       if (gitContents != null && !gitContents.isEmpty()) {
-        contents = gitContents.stream().map(gc -> this.contentAsString(gc)).toList();
+        contents =
+            gitContents.stream()
+                .map(gc -> new FileContent(gc.getName(), this.contentAsString(gc)))
+                .toList();
       }
     } catch (GHFileNotFoundException e) {
       log.warn("There's no such directory {} in the repo {}", directoryName, repository);

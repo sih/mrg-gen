@@ -17,20 +17,21 @@ public class MRGEntry extends Term {
 
   public MRGEntry() {}
 
-  public MRGEntry(Term t, String curatedFilePath, List<String> headingids) {
+  public MRGEntry(Term t, List<String> headingids) {
     this.setId(t.getId());
     this.setScope(t.getScope());
     this.setTermtype(t.getTermtype());
     this.setTermid(t.getTermid());
     this.setFormphrases(t.getFormphrases());
     this.setGrouptags(t.getGrouptags());
+    this.setStatus(t.getStatus());
     this.setCreated(t.getCreated());
     this.setUpdated(t.getUpdated());
     this.setVsntag(t.getVsntag());
     this.setCommit(t.getCommit());
     this.setContributors(t.getContributors());
-    this.setLocator(curatedFilePath);
-    this.setNavurl("TBD");
+    this.setLocator(t.getFilename());
+    this.setNavurl("To be definedT");
     this.setHeadingids(headingids);
   }
 

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import ltd.datasoc.labs.ctwg.mrg.connectors.FileContent;
 import ltd.datasoc.labs.ctwg.mrg.connectors.GithubReader;
 import ltd.datasoc.labs.ctwg.mrg.model.MRGModel;
 import ltd.datasoc.labs.ctwg.mrg.model.SAFModel;
@@ -72,13 +73,16 @@ class ModelWrangler {
     Map<String, GeneratorContext> contextMap = new HashMap<>();
     // do local scope
     String localScope = saf.getScope().getScopetag();
-    String localScopedir = saf.getScope().getScopedir();
-    GeneratorContext localContext = createSkeletonContext(localScopedir);
+    GeneratorContext localContext =
+        createSkeletonContext(
+            saf.getScope().getScopedir(), saf.getScope().getCuratedir(), versionTag);
     contextMap.put(localScope, localContext);
     // create skeleton external scopes
     List<ScopeRef> externalScopes = saf.getScopes();
     for (ScopeRef externalScope : externalScopes) {
-      GeneratorContext generatorContext = createSkeletonContext(externalScope.getScopedir());
+      GeneratorContext generatorContext =
+          createSkeletonContext(
+              externalScope.getScopedir(), saf.getScope().getCuratedir(), versionTag);
       List<String> scopetags = externalScope.getScopetags();
       for (String scopetag : scopetags) {
         contextMap.put(scopetag, generatorContext);
@@ -96,21 +100,21 @@ class ModelWrangler {
   List<Term> fetchTerms(GeneratorContext localContext, String curatedDir) {
     List<Term> terms = new ArrayList<>();
     String curatedPath = String.join("/", localContext.getRootDirPath(), curatedDir);
-    List<String> directoryContent =
+    List<FileContent> directoryContent =
         reader.getDirectoryContent(localContext.getOwnerRepo(), curatedPath);
     if (!directoryContent.isEmpty()) {
       terms =
           directoryContent.stream()
               .map(dirty -> this.cleanTermFile(dirty))
-              .map(clean -> yamlWrangler.parseTerm(clean))
+              .map(clean -> toYaml(clean))
               .toList();
     }
     return terms;
   }
 
-  private String cleanTermFile(String dirtyTermFile) {
+  private FileContent cleanTermFile(FileContent dirtyContent) {
     StringBuilder cleanYaml = new StringBuilder();
-    String[] lines = dirtyTermFile.split("\n");
+    String[] lines = dirtyContent.content().split("\n");
     boolean sectionOfInterest = false;
     for (String line : lines) {
       if (line.startsWith(MARKDOWN_HEADING)) {
@@ -121,7 +125,13 @@ class ModelWrangler {
         cleanYaml.append("\n");
       }
     }
-    return cleanYaml.toString();
+    return new FileContent(dirtyContent.filename(), cleanYaml.toString());
+  }
+
+  private Term toYaml(FileContent fileContent) {
+    Term t = yamlWrangler.parseTerm(fileContent.content());
+    t.setFilename(fileContent.filename());
+    return t;
   }
 
   /*
@@ -142,10 +152,11 @@ class ModelWrangler {
         && !line.startsWith(MARKDOWN_HEADING);
   }
 
-  private GeneratorContext createSkeletonContext(String scopedir) {
+  private GeneratorContext createSkeletonContext(
+      String scopedir, String curatedDir, String versionTag) {
     String ownerRepo = getOwnerRepo(scopedir);
     String rootPath = getRootPath(scopedir);
-    return new GeneratorContext(ownerRepo, rootPath);
+    return new GeneratorContext(ownerRepo, rootPath, curatedDir, versionTag);
   }
 
 

@@ -14,6 +14,7 @@ import ltd.datasoc.labs.ctwg.mrg.model.MRGEntry;
 import ltd.datasoc.labs.ctwg.mrg.model.MRGModel;
 import ltd.datasoc.labs.ctwg.mrg.model.SAFModel;
 import ltd.datasoc.labs.ctwg.mrg.model.ScopeRef;
+import ltd.datasoc.labs.ctwg.mrg.model.Term;
 import ltd.datasoc.labs.ctwg.mrg.model.Terminology;
 import ltd.datasoc.labs.ctwg.mrg.model.Version;
 import org.apache.commons.lang3.StringUtils;
@@ -57,7 +58,8 @@ public class MRGlossaryGenerator {
     Terminology terminology =
         new Terminology(saf.getScope().getScopetag(), saf.getScope().getScopedir());
     List<ScopeRef> scopes = new ArrayList<>(saf.getScopes());
-    List<MRGEntry> entries = constructLocalEntries(saf, localVersion);
+    List<MRGEntry> entries =
+        constructLocalEntries(contextMap.get(saf.getScope().getScopetag()), localVersion);
     entries.addAll(constructRemoteEntries(saf, localVersion));
 
     MRGModel mrg = new MRGModel(terminology, scopes, entries);
@@ -87,8 +89,9 @@ public class MRGlossaryGenerator {
   /*
    Local entries are selected from the curatedDir
   */
-  private List<MRGEntry> constructLocalEntries(SAFModel saf, Version localVersion) {
-    String curatedDir = saf.getScope().getCuratedir();
+  private List<MRGEntry> constructLocalEntries(
+      GeneratorContext localContext, Version localVersion) {
+    List<Term> localTerms = wrangler.fetchTerms(localContext, localVersion.getVsntag());
     // TODO
     return new ArrayList<>();
   }
