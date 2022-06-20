@@ -45,9 +45,11 @@ class ModelWranglerTest {
 
   private static final String ROOT_DIR = "docs/tev2";
   private static final String CURATED_DIR_NAME = "terms";
+
+  private static final String SCOPETAG = "tev2";
   private static final String CURATED_DIR_PATH = String.join("/", ROOT_DIR, CURATED_DIR_NAME);
-  private static final Path CURATED_TERM_TERM = Paths.get("./src/test/resources/term.md");
-  private static final Path CURATED_TERM_SCOPE = Paths.get("./src/test/resources/scope.md");
+  static final Path CURATED_TERM_TERM = Paths.get("./src/test/resources/term.md");
+  static final Path CURATED_TERM_SCOPE = Paths.get("./src/test/resources/scope.md");
   private FileContent termStringTerm;
   private FileContent termStringScope;
 
@@ -126,8 +128,8 @@ class ModelWranglerTest {
     when(mockReader.getDirectoryContent(OWNER_REPO, CURATED_DIR_PATH))
         .thenReturn(List.of(termStringTerm, termStringScope));
     GeneratorContext context =
-        new GeneratorContext(OWNER_REPO, ROOT_DIR, CURATED_DIR_NAME, MRGTEST_VERSION);
-    List<Term> terms = wrangler.fetchTerms(context, CURATED_DIR_NAME);
+        new GeneratorContext(OWNER_REPO, ROOT_DIR, MRGTEST_VERSION, CURATED_DIR_NAME);
+    List<Term> terms = wrangler.fetchTerms(context, SCOPETAG);
     assertThat(terms).hasSize(expectedSize);
   }
 }

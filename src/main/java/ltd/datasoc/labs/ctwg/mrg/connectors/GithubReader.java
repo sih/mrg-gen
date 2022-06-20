@@ -15,18 +15,22 @@ import org.kohsuke.github.GitHub;
  * @author sih
  */
 @Slf4j
-public class GithubReader {
+public class GithubReader implements MRGConnector {
 
+  private static final String GH_NAME = "GH_NAME";
+
+  private static final String GH_TOKEN = "GH_TOKEN";
   private GitHub gh;
 
   public GithubReader() {
     try {
-      gh = GitHub.connectAnonymously();
+      gh = GitHub.connect(System.getenv(GH_NAME), System.getenv(GH_TOKEN));
     } catch (IOException ioe) {
       throw new RuntimeException(ioe.getMessage());
     }
   }
 
+  @Override
   public String getContent(final String repository, final String contentName) {
     GHRepository repo = null;
     try {
@@ -42,6 +46,7 @@ public class GithubReader {
     }
   }
 
+  @Override
   public List<FileContent> getDirectoryContent(
       final String repository, final String directoryName) {
     List<FileContent> contents = new ArrayList<>();
@@ -73,16 +78,4 @@ public class GithubReader {
     }
   }
 
-  public static void main(String[] args) {
-    try {
-      GitHub gh = GitHub.connectAnonymously();
-      GHRepository repo = gh.getRepository("essif-lab/framework");
-      GHContent content = repo.getFileContent("README.md");
-      InputStream is = content.read();
-      String sContent = new String(is.readAllBytes(), StandardCharsets.US_ASCII);
-      System.out.println(sContent);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
 }

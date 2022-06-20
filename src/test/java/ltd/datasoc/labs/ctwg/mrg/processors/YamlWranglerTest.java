@@ -4,12 +4,15 @@ import static ltd.datasoc.labs.ctwg.mrg.processors.MRGGenerationException.UNABLE
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import ltd.datasoc.labs.ctwg.mrg.model.Curator;
 import ltd.datasoc.labs.ctwg.mrg.model.Email;
+import ltd.datasoc.labs.ctwg.mrg.model.MRGModel;
 import ltd.datasoc.labs.ctwg.mrg.model.SAFModel;
 import ltd.datasoc.labs.ctwg.mrg.model.Scope;
 import ltd.datasoc.labs.ctwg.mrg.model.ScopeRef;
@@ -25,18 +28,26 @@ class YamlWranglerTest {
   private YamlWrangler yamlWrangler;
   private static final Path SAF_SAMPLE_1_FILE = Paths.get("./src/test/resources/saf-sample-1.yaml");
   private static final Path INVALID_YAML_FILE = Paths.get("./src/test/resources/invalid-saf.yaml");
+  ;
+  private static final Path SAMPLE_MRG = Paths.get("./src/test/resources/sample-mrg.yaml");
   private String safAsString;
   private String invalidYamlSaf;
+  private MRGModel sampleMrg;
+
+  private static ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
   @BeforeEach
   void setUp() throws Exception {
     yamlWrangler = new YamlWrangler();
     safAsString = new String(Files.readAllBytes(SAF_SAMPLE_1_FILE));
     invalidYamlSaf = new String(Files.readAllBytes(INVALID_YAML_FILE));
+    String sampleMrgStr = new String(Files.readAllBytes(SAMPLE_MRG));
+    // List<MRGEntry> mrgEntry = mapper.readValue(sampleMrgStr, MRGEntry.class);
+    // sampleMrg = new MRGModel()
   }
 
   @Test
-  void given_realistic_sample_with_when_parse_then_populate() throws Exception {
+  void given_realistic_sample_with_when_parse_then_populate() {
     SAFModel actualModel = yamlWrangler.parseSaf(safAsString);
     assertThat(actualModel).isNotNull();
     assertThat(actualModel.getScope()).isNotNull();
@@ -46,24 +57,29 @@ class YamlWranglerTest {
   }
 
   @Test
-  void given_invalid_yaml_when_parse_then_throw_MRGException() throws Exception {
+  void given_invalid_yaml_when_parse_then_throw_MRGException() {
     assertThatExceptionOfType(MRGGenerationException.class)
         .isThrownBy(() -> yamlWrangler.parseSaf(invalidYamlSaf))
         .withMessage(UNABLE_TO_PARSE_SAF);
   }
 
   @Test
-  void given_null_string_when_parse_then_throw_MRGException() throws Exception {
+  void given_null_string_when_parse_then_throw_MRGException() {
     assertThatExceptionOfType(MRGGenerationException.class)
         .isThrownBy(() -> yamlWrangler.parseSaf(null))
         .withMessage(UNABLE_TO_PARSE_SAF);
   }
 
   @Test
-  void given_empty_string_when_parse_then_throw_MRGException() throws Exception {
+  void given_empty_string_when_parse_then_throw_MRGException() {
     assertThatExceptionOfType(MRGGenerationException.class)
         .isThrownBy(() -> yamlWrangler.parseSaf(StringUtils.EMPTY))
         .withMessage(UNABLE_TO_PARSE_SAF);
+  }
+
+  @Test
+  void given_invalid_path_when_write_mrg_then_throw_MRGException() {
+    Path p = Paths.get("foo");
   }
 
   private void assertSpecificChecksForSample1(SAFModel actualModel) {
@@ -129,7 +145,7 @@ class YamlWranglerTest {
     assertVersion(actualVersions[1], expectedSecondVersion);
   }
 
-  void assertTerminology(
+  private void assertTerminology(
       Scope actualTerminology,
       String expectedScopetag,
       String expectedScopedir,

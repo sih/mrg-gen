@@ -7,10 +7,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import ltd.datasoc.labs.ctwg.mrg.connectors.FileContent;
-import ltd.datasoc.labs.ctwg.mrg.connectors.GithubReader;
+import ltd.datasoc.labs.ctwg.mrg.connectors.MRGConnector;
 import ltd.datasoc.labs.ctwg.mrg.model.MRGModel;
 import ltd.datasoc.labs.ctwg.mrg.model.SAFModel;
 import ltd.datasoc.labs.ctwg.mrg.model.ScopeRef;
@@ -24,18 +25,14 @@ import org.apache.commons.lang3.StringUtils;
 class ModelWrangler {
 
   private YamlWrangler yamlWrangler;
-  private GithubReader reader;
+  private MRGConnector connector;
 
   private static final String TERM_HORIZONTAL_RULE = "---";
   private static final String MARKDOWN_HEADING = "#";
 
-  ModelWrangler(YamlWrangler yamlWrangler, GithubReader reader) {
+  ModelWrangler(YamlWrangler yamlWrangler, MRGConnector connector) {
     this.yamlWrangler = yamlWrangler;
-    this.reader = reader;
-  }
-
-  ModelWrangler() {
-    this(new YamlWrangler(), new GithubReader());
+    this.connector = connector;
   }
 
   private static final String HTTPS = "https://";
@@ -44,7 +41,7 @@ class ModelWrangler {
   private static final int OWNER_PART_INDEX = 1;
   private static final int REPO_PART_INDEX = 2;
 
-  private static final String MULTIPLE_USE_FIELDS = "# `Multiple-use fields` ";
+  private static final String MULTIPLE_USE_FIELDS = "multiple-use fields";
   private static final String GENERIC_FRONT_MATTER = "generic front-matter";
 
   // TODO getAllTerms and create a filter for the terms
@@ -61,7 +58,7 @@ class ModelWrangler {
     String saf = (null == safFilename) ? DEFAULT_SAF_FILENAME : safFilename;
     String safFilepath = String.join("/", getRootPath(scopedir), saf);
     try {
-      return reader.getContent(ownerRepo, safFilepath);
+      return connector.getContent(ownerRepo, safFilepath);
 
     } catch (Throwable t) {
       throw new MRGGenerationException(
@@ -92,21 +89,24 @@ class ModelWrangler {
     return contextMap;
   }
 
-  void writeMrgToFile(MRGModel mrg, String rootDir, String glossaryDir, String mrgFilename)
-      throws MRGGenerationException {
-    Path mrgFilepath = Path.of(rootDir, glossaryDir, mrgFilename);
+  void writeMrgToFile(MRGModel mrg, String mrgFilename) throws MRGGenerationException {
+    Path mrgFilepath = Path.of(mrgFilename);
+    yamlWrangler.writeMrg(mrgFilepath, mrg);
   }
 
-  List<Term> fetchTerms(GeneratorContext localContext, String curatedDir) {
+  // TODO accept multiple term filters
+  List<Term> fetchTerms(GeneratorContext localContext, String termFilter) {
     List<Term> terms = new ArrayList<>();
-    String curatedPath = String.join("/", localContext.getRootDirPath(), curatedDir);
+    String curatedPath =
+        String.join("/", localContext.getRootDirPath(), localContext.getCuratedDir());
     List<FileContent> directoryContent =
-        reader.getDirectoryContent(localContext.getOwnerRepo(), curatedPath);
+        connector.getDirectoryContent(localContext.getOwnerRepo(), curatedPath);
     if (!directoryContent.isEmpty()) {
       terms =
           directoryContent.stream()
               .map(dirty -> this.cleanTermFile(dirty))
               .map(clean -> toYaml(clean))
+              .filter(term -> term.getScope().equals(termFilter))
               .toList();
     }
     return terms;
@@ -121,6 +121,8 @@ class ModelWrangler {
         sectionOfInterest = isSectionOfInterest(line);
       }
       if (isClean(line) && sectionOfInterest) {
+        log.debug(
+            "Found something of interest in file: {}\nline: {}", dirtyContent.filename(), line);
         cleanYaml.append(line);
         cleanYaml.append("\n");
       }
@@ -129,9 +131,15 @@ class ModelWrangler {
   }
 
   private Term toYaml(FileContent fileContent) {
-    Term t = yamlWrangler.parseTerm(fileContent.content());
-    t.setFilename(fileContent.filename());
-    t.setHeadings(fileContent.headings());
+    Term t = null;
+    try {
+      t = yamlWrangler.parseTerm(fileContent.content());
+      t.setFilename(fileContent.filename());
+      t.setHeadings(fileContent.headings());
+      log.info("Created term with id {}", t.getId());
+    } catch (Exception e) {
+      log.error("Got exception for file {}", fileContent.filename());
+    }
     return t;
   }
 
@@ -141,7 +149,8 @@ class ModelWrangler {
   */
   private boolean isSectionOfInterest(String line) {
     return !StringUtils.isEmpty(line)
-        && (line.startsWith(MULTIPLE_USE_FIELDS) || line.contains(GENERIC_FRONT_MATTER));
+        && (line.toLowerCase(Locale.ROOT).contains(MULTIPLE_USE_FIELDS)
+            || line.toLowerCase(Locale.ROOT).contains(GENERIC_FRONT_MATTER));
   }
 
   /*
@@ -157,7 +166,7 @@ class ModelWrangler {
       String scopedir, String curatedDir, String versionTag) {
     String ownerRepo = getOwnerRepo(scopedir);
     String rootPath = getRootPath(scopedir);
-    return new GeneratorContext(ownerRepo, rootPath, curatedDir, versionTag);
+    return new GeneratorContext(ownerRepo, rootPath, versionTag, curatedDir);
   }
 
 

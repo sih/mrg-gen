@@ -4,6 +4,7 @@ import static ltd.datasoc.labs.ctwg.mrg.processors.MRGlossaryGenerator.DEFAULT_S
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import ltd.datasoc.labs.ctwg.mrg.connectors.GithubReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +27,7 @@ class ModelWranglerIntegrationTest {
 
   @BeforeEach
   void set_up() {
-    wrangler = new ModelWrangler();
+    wrangler = new ModelWrangler(new YamlWrangler(), new GithubReader());
   }
 
   @Test
