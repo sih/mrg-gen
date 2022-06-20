@@ -51,7 +51,9 @@ public class GithubReader {
       if (gitContents != null && !gitContents.isEmpty()) {
         contents =
             gitContents.stream()
-                .map(gc -> new FileContent(gc.getName(), this.contentAsString(gc)))
+                .map(
+                    gc ->
+                        new FileContent(gc.getName(), this.contentAsString(gc), new ArrayList<>()))
                 .toList();
       }
     } catch (GHFileNotFoundException e) {

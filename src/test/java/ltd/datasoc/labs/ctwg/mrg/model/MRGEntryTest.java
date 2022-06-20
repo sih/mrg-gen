@@ -49,6 +49,7 @@ class MRGEntryTest {
     String termAsString = new String(Files.readAllBytes(Paths.get(TERM_TERM_FILE_PATH)));
     termTerm = yamlMapper.readValue(termAsString, Term.class);
     termTerm.setFilename("basic-term.yaml");
+    termTerm.setHeadings(new ArrayList<>());
     setUpExpectations();
     assertCommonTermAttributes(termTerm);
   }
@@ -56,7 +57,7 @@ class MRGEntryTest {
   @DisplayName("Should be able to create a valid MRGEntry from a term")
   @Test
   void testConstructMrgEntryFromTerm() {
-    MRGEntry mrgEntry = new MRGEntry(termTerm, new ArrayList<>());
+    MRGEntry mrgEntry = new MRGEntry(termTerm);
     assertCommonTermAttributes(mrgEntry);
     assertMrgEntrySpecificAttributes(mrgEntry);
   }

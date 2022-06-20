@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import ltd.datasoc.labs.ctwg.mrg.connectors.FileContent;
@@ -55,9 +56,12 @@ class ModelWranglerTest {
     wrangler = new ModelWrangler(yamlWrangler, mockReader);
     invalidSafContent = new String(Files.readAllBytes(INVALID_SAF));
     validSafContent = new String(Files.readAllBytes(VALID_SAF));
-    termStringTerm = new FileContent("term.md", new String(Files.readAllBytes(CURATED_TERM_TERM)));
+    termStringTerm =
+        new FileContent(
+            "term.md", new String(Files.readAllBytes(CURATED_TERM_TERM)), new ArrayList<>());
     termStringScope =
-        new FileContent("scope.md", new String(Files.readAllBytes(CURATED_TERM_SCOPE)));
+        new FileContent(
+            "scope.md", new String(Files.readAllBytes(CURATED_TERM_SCOPE)), new ArrayList<>());
   }
 
   @Test

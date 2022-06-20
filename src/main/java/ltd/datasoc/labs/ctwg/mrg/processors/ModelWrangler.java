@@ -125,12 +125,13 @@ class ModelWrangler {
         cleanYaml.append("\n");
       }
     }
-    return new FileContent(dirtyContent.filename(), cleanYaml.toString());
+    return new FileContent(dirtyContent.filename(), cleanYaml.toString(), dirtyContent.headings());
   }
 
   private Term toYaml(FileContent fileContent) {
     Term t = yamlWrangler.parseTerm(fileContent.content());
     t.setFilename(fileContent.filename());
+    t.setHeadings(fileContent.headings());
     return t;
   }
 

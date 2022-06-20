@@ -1,6 +1,7 @@
 package ltd.datasoc.labs.ctwg.mrg.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -29,6 +30,10 @@ public class Term implements Comparable<Term> {
   @JsonIgnore
   @Getter(AccessLevel.PROTECTED)
   private String filename;
+
+  @JsonIgnore
+  @Getter(AccessLevel.PROTECTED)
+  private List<String> headings;
 
   @Override
   public int compareTo(Term other) {

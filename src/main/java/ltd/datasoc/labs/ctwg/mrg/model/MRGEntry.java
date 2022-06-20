@@ -17,7 +17,7 @@ public class MRGEntry extends Term {
 
   public MRGEntry() {}
 
-  public MRGEntry(Term t, List<String> headingids) {
+  public MRGEntry(Term t) {
     this.setId(t.getId());
     this.setScope(t.getScope());
     this.setTermtype(t.getTermtype());
@@ -32,7 +32,7 @@ public class MRGEntry extends Term {
     this.setContributors(t.getContributors());
     this.setLocator(t.getFilename());
     this.setNavurl("To be definedT");
-    this.setHeadingids(headingids);
+    this.setHeadingids(t.getHeadings());
   }
 
   @Override
