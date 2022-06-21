@@ -22,7 +22,6 @@ class LocalFSConnectorTest {
 
   private GeneratorContext context;
   private static final String WORKING_DIRECTORY_KEY = "user.dir";
-  private String scopedir;
   private MRGConnector connector;
   private String termAsString;
   private String scopeAsString;
@@ -33,18 +32,13 @@ class LocalFSConnectorTest {
     String osSeparator = FileSystems.getDefault().getSeparator();
     // will use the SAF file in the ./src/test/resources directory so set this dir as the scopedir
     String projectRoot = System.getProperty(WORKING_DIRECTORY_KEY);
-    scopedir = String.join(osSeparator, projectRoot, "src", "test", "resources");
+    String scopedir = String.join(osSeparator, projectRoot, "src", "test", "resources");
     context = new GeneratorContext(scopedir, scopedir, "mrgtest", "terms");
     connector = new LocalFSConnector();
     termAsString = new String(Files.readAllBytes(Paths.get("./src/test/resources/terms/term.md")));
     scopeAsString =
         new String(Files.readAllBytes(Paths.get("./src/test/resources/terms/scope.md")));
 
-  }
-
-  @Test
-  void checkScopedir() {
-    assertThat(scopedir).isEqualTo("/Users/sid/dev/mrg-gen/src/test/resources");
   }
 
   @DisplayName("Given content exists at the location when getContent then return expected content")
