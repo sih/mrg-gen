@@ -9,8 +9,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import lombok.AccessLevel;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import ltd.datasoc.labs.ctwg.mrg.connectors.FileContent;
+import ltd.datasoc.labs.ctwg.mrg.connectors.LocalFSConnector;
 import ltd.datasoc.labs.ctwg.mrg.connectors.MRGConnector;
 import ltd.datasoc.labs.ctwg.mrg.model.MRGModel;
 import ltd.datasoc.labs.ctwg.mrg.model.SAFModel;
@@ -30,9 +33,13 @@ class ModelWrangler {
   private static final String TERM_HORIZONTAL_RULE = "---";
   private static final String MARKDOWN_HEADING = "#";
 
+  @Setter(AccessLevel.NONE) // as we derive this from what type of connector has been passed
+  private boolean local;
+
   ModelWrangler(YamlWrangler yamlWrangler, MRGConnector connector) {
     this.yamlWrangler = yamlWrangler;
     this.connector = connector;
+    local = (connector instanceof LocalFSConnector);
   }
 
   private static final String HTTPS = "https://";
@@ -171,26 +178,38 @@ class ModelWrangler {
 
 
   private String getOwnerRepo(String scopedir) {
-    int httpIndex = scopedir.indexOf(HTTPS) + HTTPS.length();
-    int treeIndex = scopedir.indexOf(TREE) + TREE.length();
-    String[] parts = scopedir.substring(httpIndex).split("/");
-    String ownerRepo = String.join("/", parts[OWNER_PART_INDEX], parts[REPO_PART_INDEX]);
+    String ownerRepo;
+    if (local) {
+      ownerRepo =
+          scopedir; // no real concept of ownerRepo when it's local so just make it the scopedir
+    } else {
+      int httpIndex = scopedir.indexOf(HTTPS) + HTTPS.length();
+      int treeIndex = scopedir.indexOf(TREE) + TREE.length();
+      String[] parts = scopedir.substring(httpIndex).split("/");
+      ownerRepo = String.join("/", parts[OWNER_PART_INDEX], parts[REPO_PART_INDEX]);
+    }
     return ownerRepo;
   }
 
   private String getRootPath(String scopedir) {
-    int treeIndex = scopedir.indexOf(TREE);
-    if (treeIndex == -1) { // no tree found => root dir is /
-      return "/";
+    String rootPath;
+    if (local) {
+      rootPath = scopedir; // for local the rootPath and scopedir are identical
+    } else {
+      int treeIndex = scopedir.indexOf(TREE);
+      if (treeIndex == -1) { // no tree found => root dir is /
+        return "/";
+      }
+      treeIndex = treeIndex + +TREE.length() + 1; // step past "tree" itself
+      String branchDir = scopedir.substring(treeIndex);
+      String[] branchDirParts = branchDir.split("/");
+      String[] dirParts = Arrays.copyOfRange(branchDirParts, 1, branchDirParts.length);
+      StringBuilder path = new StringBuilder();
+      for (int i = 0; i < dirParts.length; i++) {
+        path.append(dirParts[i]).append("/");
+      }
+      rootPath = path.deleteCharAt(path.length() - 1).toString();
     }
-    treeIndex = treeIndex + +TREE.length() + 1; // step past "tree" itself
-    String branchDir = scopedir.substring(treeIndex);
-    String[] branchDirParts = branchDir.split("/");
-    String[] dirParts = Arrays.copyOfRange(branchDirParts, 1, branchDirParts.length);
-    StringBuilder path = new StringBuilder();
-    for (int i = 0; i < dirParts.length; i++) {
-      path.append(dirParts[i]).append("/");
-    }
-    return path.deleteCharAt(path.length() - 1).toString();
+    return rootPath;
   }
 }
