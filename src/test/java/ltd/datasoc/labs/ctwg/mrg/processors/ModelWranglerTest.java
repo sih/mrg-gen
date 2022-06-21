@@ -48,8 +48,8 @@ class ModelWranglerTest {
 
   private static final String SCOPETAG = "tev2";
   private static final String CURATED_DIR_PATH = String.join("/", ROOT_DIR, CURATED_DIR_NAME);
-  static final Path CURATED_TERM_TERM = Paths.get("./src/test/resources/term.md");
-  static final Path CURATED_TERM_SCOPE = Paths.get("./src/test/resources/scope.md");
+  static final Path CURATED_TERM_TERM = Paths.get("./src/test/resources/terms/term.md");
+  static final Path CURATED_TERM_SCOPE = Paths.get("./src/test/resources/terms/scope.md");
   private FileContent termStringTerm;
   private FileContent termStringScope;
 
@@ -60,10 +60,12 @@ class ModelWranglerTest {
     validSafContent = new String(Files.readAllBytes(VALID_SAF));
     termStringTerm =
         new FileContent(
-            "term.md", new String(Files.readAllBytes(CURATED_TERM_TERM)), new ArrayList<>());
+            "terms/term.md", new String(Files.readAllBytes(CURATED_TERM_TERM)), new ArrayList<>());
     termStringScope =
         new FileContent(
-            "scope.md", new String(Files.readAllBytes(CURATED_TERM_SCOPE)), new ArrayList<>());
+            "terms/scope.md",
+            new String(Files.readAllBytes(CURATED_TERM_SCOPE)),
+            new ArrayList<>());
   }
 
   @Test

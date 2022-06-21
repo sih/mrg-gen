@@ -6,7 +6,7 @@ import lombok.Getter;
  * @author sih
  */
 @Getter
-final class GeneratorContext {
+public final class GeneratorContext {
   private String ownerRepo;
   private String rootDirPath;
   private String safFilepath;
