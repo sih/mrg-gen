@@ -43,16 +43,16 @@ public class LocalFSConnector implements MRGConnector {
   public List<FileContent> getDirectoryContent(String repository, String directoryName) {
     List<FileContent> contents;
     Path directoryPath = Path.of(repository, directoryName);
-    try {
-      Stream<Path> contentsAsPath = Files.walk(directoryPath);
+    try (Stream<Path> contentsAsPath = Files.walk(directoryPath)) {
       contents =
           contentsAsPath
+              .filter(p -> !Files.isDirectory(p))
               .map(
                   path ->
                       new FileContent(
                           path.getFileName().toString(), this.getContent(path), new ArrayList<>()))
               .toList();
-    } catch (IOException ioe) {
+    } catch (Exception e) {
       throw new MRGGenerationException(
           String.format(COULD_NOT_READ_LOCAL_CONTENT, directoryPath.toUri()));
     }

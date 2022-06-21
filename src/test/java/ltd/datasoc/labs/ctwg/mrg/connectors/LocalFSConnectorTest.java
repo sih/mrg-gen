@@ -27,6 +27,7 @@ class LocalFSConnectorTest {
   private String termAsString;
   private String scopeAsString;
 
+
   @BeforeEach
   void setUp() throws Exception {
     String osSeparator = FileSystems.getDefault().getSeparator();
@@ -38,6 +39,7 @@ class LocalFSConnectorTest {
     termAsString = new String(Files.readAllBytes(Paths.get("./src/test/resources/terms/term.md")));
     scopeAsString =
         new String(Files.readAllBytes(Paths.get("./src/test/resources/terms/scope.md")));
+
   }
 
   @Test
@@ -72,6 +74,17 @@ class LocalFSConnectorTest {
                 expectedPath.toAbsolutePath().toUri()));
   }
 
+  @Test
+  @DisplayName("Given valid directory when getDirectoryContent then return correct content")
+  void testValidGetDirectoryContent() {
+    String directoryName = "terms";
+    FileContent term = new FileContent("term.md", termAsString, new ArrayList<>());
+    FileContent scope = new FileContent("scope.md", scopeAsString, new ArrayList<>());
+    List<FileContent> contents =
+        connector.getDirectoryContent(context.getOwnerRepo(), directoryName);
+    assertThat(contents).containsExactlyInAnyOrder(term, scope);
+  }
+
   @DisplayName("Given a non existent directory when getDirectoryContent then throw exception")
   @Test
   void testInvalidGetDirectoryContent() {
@@ -85,14 +98,5 @@ class LocalFSConnectorTest {
                 expectedPath.toAbsolutePath().toUri()));
   }
 
-  @Test
-  @DisplayName("Given valid directory when getDirectoryContent then return correct content")
-  void testValidGetDirectoryContent() {
-    String directoryName = "terms";
-    FileContent term = new FileContent("term.md", termAsString, new ArrayList<>());
-    FileContent scope = new FileContent("scope.md", scopeAsString, new ArrayList<>());
-    List<FileContent> contents =
-        connector.getDirectoryContent(context.getOwnerRepo(), directoryName);
-    assertThat(contents).containsExactlyInAnyOrder(term, scope);
-  }
+
 }
